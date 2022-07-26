@@ -8,6 +8,7 @@
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <vector>
 
 #include "Simbolo.h"
 #include "Instrucao.h"
