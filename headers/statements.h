@@ -1,4 +1,4 @@
-#include "includes.h"
+#include "../headers/Includes.h"
 
 typedef struct  {
     string rotulo;
@@ -68,21 +68,21 @@ char Q1 = 'A', Q2 = 'D', Q3 = 'D',                                      // ADD
         Q98 = 'R', Q99 = 'O',                                           // ENDMACRO
     Q101 = 'E', Q102 = 'Q', Q103 = 'U';                                 // EQU
 
-tab_inst = ler_tab_instr(tab_inst);     // Tabela de instruções
-tab_diret = ler_tab_diret(tab_diret);   // Tabela de diretivas
+// tab_inst = ler_tab_instr(tab_inst);     // Tabela de instruções
+// tab_diret = ler_tab_diret(tab_diret);   // Tabela de diretivas
 
-ifstream arq_cod1 (argv[2]);
+// ifstream arq_cod1 (argv[2]);
 
 // cout << "argv 0: " << argv[0] << endl;
 // cout << "argv 1: " << argv[1] << endl;
 // cout << "argv 2: " << argv[2] << endl;
 // cout << "argv 3: " << argv[3] << endl;
 
-ofstream arq_saida (argv[3]);
-if (! arq_saida) { 
-    cout << "Arquivo saida.txt nao pode ser aberto" << endl;
-    abort();
-}
+// ofstream arq_saida (argv[3]);
+// if (! arq_saida) { 
+//     cout << "Arquivo saida.txt nao pode ser aberto" << endl;
+//     abort();
+// }
 
 char c, b_space;
 string lexema;

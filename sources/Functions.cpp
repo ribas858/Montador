@@ -183,7 +183,8 @@ Enunciado Functions::update_enunc(Enunciado enunc, int line_count) {
             forma_linha[0] = -1;
             forma_linha[1] = -1;
             op_count = 0;
-        } else if (op_count > forma_linha[1]) {
+        }
+        else if (op_count > forma_linha[1]) {
             cout << "ERRO SINTÁTICO -- Linha: " << line_count << " | Número de Operandos Incorreto Para a Instrução Definida -- Instrução Pede: "
             << forma_linha[1] << " Operandos | " << "Encontrado: " << op_count << " Operandos" << endl;
             forma_linha[0] = -1;
@@ -295,7 +296,8 @@ bool Functions::rot_valido(string lexema, int cod) {
                 return false;
             }
         }   
-    } else if (cod == 2) {
+    }
+    else if (cod == 2) {
         // cout << lexema << " func" << endl;
         if ( (isdigit(lexema[0]) || lexema[0] == ',' || lexema[0] == ':' || lexema[lexema.size()-1] == ':') && lexema.size() > 1 ) {
             return false;
@@ -320,7 +322,8 @@ bool Functions::rot_valido(string lexema, int cod) {
                 return false;
             }
         }
-    } else if (cod == 3) {
+    }
+    else if (cod == 3) {
         // cout << lexema << " func" << endl;
         if ( (isdigit(lexema[0]) || lexema[0] == ',' || lexema[0] == ':' || lexema[lexema.size()-1] == ':' || lexema[lexema.size()-1] == ',') && lexema.size() > 1 ) {
             return false;
@@ -349,7 +352,7 @@ bool Functions::rot_valido(string lexema, int cod) {
     return false;
 }
 
-void Functions::Analise_rot_instr(ifstream& arq_cod1, char& c, string& lexema, map<string, Instrucao>& tab_inst,
+void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema, map<string, Instrucao>& tab_inst,
     map<string, Diretiva>& tab_diret, int& line_count, string* forma_linha, vector<string>& linha, string& rot,
         int& begin_line, bool& line_analise, int& estado, pair<int,int>& v, int& flag_v) {
     
@@ -359,11 +362,11 @@ void Functions::Analise_rot_instr(ifstream& arq_cod1, char& c, string& lexema, m
         if (size > 0) {
             if (busca_instrucao(tab_inst, tab_diret, lexema)) {
                 
-                //arq_cod1.seekg(-(size+1), ios::cur);
+                //arq_entrada.seekg(-(size+1), ios::cur);
                 estado = 2;
             } else {
                 // cout << -(size+1) << endl;
-                //arq_cod1.seekg(-(size+1), ios::cur);
+                //arq_entrada.seekg(-(size+1), ios::cur);
                 if (forma_linha[0] == "nil") {
                     estado = 1;
                 } else {
@@ -426,7 +429,7 @@ void Functions::Analise_rot_instr(ifstream& arq_cod1, char& c, string& lexema, m
                     // cout << "Estado 3" << endl;
                     
                     
-                    if (forma_linha[1] == "nil" && has_line_instruction(arq_cod1, tab_inst, tab_diret, begin_line, 1).first == -1) {
+                    if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 1).first == -1) {
                             forma_linha[1] = "erro";
                             linha.push_back("[inst]");
                             cout << lexema << endl;
@@ -458,7 +461,7 @@ void Functions::Analise_rot_instr(ifstream& arq_cod1, char& c, string& lexema, m
                             } else {
                                 
                                 if (line_analise) {
-                                    v = has_line_instruction(arq_cod1, tab_inst, tab_diret, begin_line, 2);
+                                    v = has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 2);
                                     line_analise = false;
                                 }
 
@@ -557,11 +560,11 @@ bool Functions::duplicate_vector(vector<string> v, string key) {
 
 }
 
-pair<int, int> Functions::has_line_instruction(ifstream& arq_cod1, map<string, Instrucao>& tab_inst, map<string, Diretiva>& tab_diret, int begin_line, int cod) {
+pair<int, int> Functions::has_line_instruction(ifstream& arq_entrada, map<string, Instrucao>& tab_inst, map<string, Diretiva>& tab_diret, int begin_line, int cod) {
     if (cod == 1) {
         char b;
         string word;
-        int atual_pos_file = arq_cod1.tellg();
+        int atual_pos_file = arq_entrada.tellg();
         
         int has_inst = 0;
         int inst_pos = -1;
@@ -573,8 +576,8 @@ pair<int, int> Functions::has_line_instruction(ifstream& arq_cod1, map<string, I
         
         int i = 0;
         while (b != '\n') {
-            arq_cod1.seekg(begin_line + i);
-            arq_cod1.get(b);
+            arq_entrada.seekg(begin_line + i);
+            arq_entrada.get(b);
             if (b == ' ' || b == '\t' || b == '\n') {
                 if (word.size() > 0) {
                     if (busca_instrucao(tab_inst, tab_diret, word)) {
@@ -595,7 +598,7 @@ pair<int, int> Functions::has_line_instruction(ifstream& arq_cod1, map<string, I
         }
         
         
-        arq_cod1.seekg(atual_pos_file);
+        arq_entrada.seekg(atual_pos_file);
 
         if (has_inst > 0) {
             inst_pos = pos;
@@ -614,16 +617,17 @@ pair<int, int> Functions::has_line_instruction(ifstream& arq_cod1, map<string, I
         // cout << "dois pt: " << dois_pt << " has inst: " << has_inst <<  " word: " << word << " inst_pos: " << inst_pos << " pos: " << pos << endl;
 
         return make_pair(inst_pos, -1);
-    } else if (cod == 2) {
+    }
+    else if (cod == 2) {
         char b;
         int virg = 0;
-        int atual_pos_file = arq_cod1.tellg();
+        int atual_pos_file = arq_entrada.tellg();
         string word;
 
         int i = 0;
         while (b != '\n') {
-            arq_cod1.seekg(begin_line + i);
-            arq_cod1.get(b);
+            arq_entrada.seekg(begin_line + i);
+            arq_entrada.get(b);
             
             if (b == ',') {
                 virg++;
@@ -635,7 +639,7 @@ pair<int, int> Functions::has_line_instruction(ifstream& arq_cod1, map<string, I
             i++;
         }
 
-        arq_cod1.seekg(atual_pos_file);
+        arq_entrada.seekg(atual_pos_file);
         int cont_space = 0;
         for (int i=0; i<word.size(); i++) {
             
@@ -662,16 +666,16 @@ pair<int, int> Functions::has_line_instruction(ifstream& arq_cod1, map<string, I
     return make_pair(-3,-3);
 }
 
-pair<bool, string> Functions::section_test(ifstream& arq_cod1, int begin_line) {
+pair<bool, string> Functions::section_test(ifstream& arq_entrada, int begin_line) {
     char b;
-    int atual_pos_file = arq_cod1.tellg();
-    // arq_cod1.seekg(atual_pos_file);
+    int atual_pos_file = arq_entrada.tellg();
+    // arq_entrada.seekg(atual_pos_file);
     string line;
 
     int i = 0;
     while (b != '\n') {
-            arq_cod1.seekg(begin_line + i);
-            arq_cod1.get(b);
+            arq_entrada.seekg(begin_line + i);
+            arq_entrada.get(b);
             if (b != '\n') {
                 line += b;
             }
@@ -679,7 +683,7 @@ pair<bool, string> Functions::section_test(ifstream& arq_cod1, int begin_line) {
     }
     // cout << "atual_pos_file: " << atual_pos_file << endl;
 
-    arq_cod1.seekg(atual_pos_file);
+    arq_entrada.seekg(atual_pos_file);
 
     // cout << "Line size " << line << endl;
     if (line == "SECAO TEXTO" || line == "SECAO DADOS") {
@@ -690,34 +694,147 @@ pair<bool, string> Functions::section_test(ifstream& arq_cod1, int begin_line) {
     }
 }
 
-void Functions::val_sections(int& flag_section, ifstream& arq_cod1, int& begin_line, int& flag_data, string& lexema, int line_count, string& msg, int cod) {
+void Functions::val_sections(int& flag_section, ifstream& arq_entrada, int& begin_line, int& flag_data, string& lexema, int line_count, string& msg, int cod) {
     if (cod == 1) {
         if (flag_section == 0) {
-            auto aux = Functions::section_test(arq_cod1, begin_line);
+            auto aux = Functions::section_test(arq_entrada, begin_line);
             if(aux.first) {
                 flag_section = 1;
-                arq_cod1.seekg(aux.second.size(), ios::cur);
+                arq_entrada.seekg(aux.second.size(), ios::cur);
                 flag_data = 1;
             } else {
                 msg = aux.second;
                 
-                arq_cod1.seekg(aux.second.size(), ios::cur);
+                arq_entrada.seekg(aux.second.size(), ios::cur);
                 flag_data = 1;
             }
         }
 
-    } else if (cod == 2) {
+    } 
+    else if (cod == 2) {
         if (lexema == "SECAO" && flag_data == 1) {
             lexema.clear();
             flag_data = 0;
-            auto aux = Functions::section_test(arq_cod1, begin_line);
+            auto aux = Functions::section_test(arq_entrada, begin_line);
             if (!aux.first) {
                 // cout << "Falta secao dados" << endl;
-                arq_cod1.seekg(aux.second.size()-4, ios::cur);
+                arq_entrada.seekg(aux.second.size()-4, ios::cur);
                 Functions::print_errors(aux.second, 10, line_count);
             } else {
-                arq_cod1.seekg(aux.second.size()-4, ios::cur);
+                arq_entrada.seekg(aux.second.size()-4, ios::cur);
             }
         }
     }
+}
+
+void Functions::up_file(char *arq_in) {
+    char c;
+    string file;
+    ifstream arq_entrada(arq_in);
+
+    if (arq_entrada.is_open()){
+        while(arq_entrada.good()){
+            arq_entrada.get(c);
+		    file += c;
+        }
+    } else {
+        cout << "Arquivo inexistente" << endl;
+    }
+    arq_entrada.close();
+    
+    file.pop_back();
+    for(int i=0; i<file.size(); i++) {
+        file[i] = toupper(file[i]);
+    }
+
+    ofstream arq_cod2(arq_in);
+    if (arq_cod2.is_open()){
+        arq_cod2 << file;
+    } else {
+        cout << "Arquivo inexistente" << endl;
+    }
+    arq_cod2.close();
+}
+
+string Functions::limpa_coment(ifstream& arq_entrada) {
+    char b;
+    string file;
+    int ign_coment = 0;
+    while(arq_entrada.good()){
+        arq_entrada.get(b);
+        if (b == ';') {
+            ign_coment = 1;
+        } else if (b == '\n') {
+            ign_coment = 0;
+        }
+        if (ign_coment == 0) {
+            file += b;
+        }
+    }
+    return file;
+}
+
+void Functions::update_diretivas(map<string, string>& map_diret, map<string, Diretiva>& tab_diret, string& diret, string& key) {
+    char b;
+    string word;
+    int size;
+    int flag_qu = 0;
+    int flag_if = 0;
+    int flag_ign = 0;
+    // cout << diret << endl;
+    for (int i=0; i<diret.size(); i++) {
+        
+        if (diret[i] == ' ' || int(diret[i]) == 10) {
+            if (flag_ign == 0) {
+                size = word.size();
+                if (size > 0) {
+                    if (word[size-1] == ':') {
+                        word.pop_back();
+                        key = word;
+                        auto it_diret = map_diret.find(word);
+                        if ( it_diret == map_diret.end()) {
+                            map_diret.insert(make_pair(word, "not"));    
+                        }
+                    }
+                    else if (busca_2(tab_diret, word)) {
+                        if (word == "EQU") {
+                            auto it_diret = map_diret.find(key);
+                            if ( it_diret != map_diret.end()) {
+                                flag_qu = 1;
+                            }
+                        }
+                        else if (word == "IF") {
+                            flag_if = 1;
+                            cout << "key: " << key << endl;
+                        }
+                        
+                    }
+                    
+                    
+                }
+            }
+            word.clear();
+        } else {
+            
+            word += diret[i];
+        }
+    }
+    if (flag_qu == 1) {
+        auto it_diret = map_diret.find(key);
+        if ( it_diret != map_diret.end()) {
+            it_diret->second = word;
+        }
+    }
+    if (flag_if == 1) {
+        auto it_diret = map_diret.find(word);
+        if ( it_diret != map_diret.end()) {
+            cout << "s: " << it_diret->second << endl;
+            if (int(stoi(it_diret->second)) == 0) {
+
+            } 
+        }
+        cout << "w: "<< word << endl;
+    }
+    // cout << word << endl;
+    
 }
