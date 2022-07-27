@@ -10,8 +10,8 @@ int main (int argc, char **argv) {
 
     list<int> diretivas_final;
     list<string> bff_for_errors;
-    bool forma_linha[2] = {false, false};
-    bool forma_op[2] = {false, false};
+    
+    // bool forma_op[2] = {false, false};
 
     // tsb simbol;
     // simbol.rotulo = "ADD";
@@ -60,7 +60,9 @@ int main (int argc, char **argv) {
     int pos_count = 0, ign_coment = 0, estado = 0, op_count = 0, last_inst = 0;
     
     vector<string> linha;
+    //vector<pair<string, int>> linha_errors;
     int begin_line = 0;
+    string forma_linha[2] = {"nil", "nil"}; // nil -> Não Checado, ckeck -> Checado:Sem Rotulo, rot / inst -> Checado:OK Rotulo/Instrucao, erro -> Checado:Erro
 
     if (arq_cod1.is_open()){
         for (int passagem = 0; passagem <= 0; passagem++) {
@@ -72,14 +74,33 @@ int main (int argc, char **argv) {
             Diretiva diret;
             string rot = "";
             bool line_analise = true;
-            int pos_inst = -2;
+            int estado = 0;
+            pair<int,int> v;
+            int flag_v = 0;
+
+            int flag_section = 0;
+            int flag_data = 0;
+            string msg = "";
+            
 
             while(arq_cod1.good()){
+                
+                Functions::val_sections(flag_section, arq_cod1, begin_line, flag_data, lexema, line_count, msg, 1);
+
+                Functions::val_sections(flag_section, arq_cod1, begin_line, flag_data, lexema, line_count, msg, 2);
+
                 arq_cod1.get(c);
 
                 
                 
-                Functions::Analise_rot_instr(arq_cod1, c, lexema, tab_inst, tab_diret, line_count, forma_linha, linha, rot, begin_line, line_analise, pos_inst);
+                if (flag_section == 1) {
+                    //flag_section = 0;
+                    Functions::Analise_rot_instr(arq_cod1, c, lexema, tab_inst, tab_diret, line_count, forma_linha, linha, rot, begin_line, line_analise, estado, v, flag_v);
+                } else {
+                    flag_section = 1;
+                    // cout << "Falta secao texto" << endl;
+                    Functions::print_errors(msg, 9, line_count);
+                }
 
                 
                 
@@ -87,36 +108,32 @@ int main (int argc, char **argv) {
                 if (c == '\n') {
                     begin_line = arq_cod1.tellg();
                     line_analise = true;
-                    cout << "=================== Linha: ";
-                    for (int i = 0; i < linha.size(); i++) {
-                        cout << linha[i] << " ";
-                    }
-                    cout << endl;
-
-                    //cout << "\n\n Fim da linha: "<< line_count << " Rotulo[" << forma_linha[0] << "] | Instrução[" << forma_linha[1] << "]" << endl;
-                    if (forma_linha[0] && !forma_linha[1]) {
-                        forma_linha[0] = true;
-                    } else if (forma_linha[0] && forma_linha[1]) {
-                        linha.clear();
-                        forma_linha[0] = false;
-                    } else if (!forma_linha[0] && forma_linha[1]) {
-                        linha.clear();
-                    } else if (!forma_linha[0] && !forma_linha[1]) {
-                        linha.clear();
+                    if (forma_linha[0] != "nil" && forma_linha[1] != "nil" ) {
                         
+                        cout << "=================== Linha: ";
+                        for (int i = 0; i < linha.size(); i++) {
+                            cout << linha[i] << " ";
+                        }
+                        cout << endl;
+
+                        //cout << "\nFim da linha: "<< line_count << " Rotulo[" << forma_linha[0] << "] | Instrução[" << forma_linha[1] << "]" << endl;
+
+                        linha.clear();
+                        forma_linha[0] = "nil";
+                        forma_linha[1] = "nil";
                     }
-                    forma_linha[1] = false;
                     line_count++;
                 }
 
                 
             
             }
-            cout << "Linha: ";
-            for (int i = 0; i < linha.size(); i++) {
-                cout << linha[i] << " ";
-            }
-            cout << endl;
+            
+            // cout << "Linha: ";
+            // for (int i = 0; i < linha.size(); i++) {
+            //     cout << linha[i] << " ";
+            // }
+            // cout << endl;
         }
     } else {
         cout << "Arquivo inexistente" << endl;
