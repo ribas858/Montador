@@ -774,51 +774,63 @@ string Functions::limpa_coment(ifstream& arq_entrada) {
     return file;
 }
 
-void Functions::update_diretivas(map<string, string>& map_diret, map<string, Diretiva>& tab_diret, string& diret, string& key) {
+void Functions::update_diretivas(map<string, string>& map_diret, map<string, Diretiva>& tab_diret, string& diret, int& flag_ign) {
     char b;
-    string word;
+    string word, key;
     int size;
     int flag_qu = 0;
     int flag_if = 0;
-    int flag_ign = 0;
     // cout << diret << endl;
+
     for (int i=0; i<diret.size(); i++) {
+        // cout << "Aquii: " << diret[i] << " : " << int(diret[i]) << endl;
         
-        if (diret[i] == ' ' || int(diret[i]) == 10) {
-            if (flag_ign == 0) {
-                size = word.size();
-                if (size > 0) {
-                    if (word[size-1] == ':') {
-                        word.pop_back();
-                        key = word;
-                        auto it_diret = map_diret.find(word);
-                        if ( it_diret == map_diret.end()) {
-                            map_diret.insert(make_pair(word, "not"));    
+        if (diret[i] == ' ') {
+            
+            size = word.size();
+            if (size > 0) {
+                if (word[size-1] == ':') {
+                    word.pop_back();
+                    key = word;
+                    auto it_diret = map_diret.find(word);
+                    if ( it_diret == map_diret.end()) {
+                        map_diret.insert(make_pair(word, "not"));    
+                    }
+                }
+                else if (busca_2(tab_diret, word)) {
+                    if (word == "EQU") {
+                        auto it_diret = map_diret.find(key);
+                        if ( it_diret != map_diret.end()) {
+                            flag_qu = 1;
+
+                            flag_ign = 1;
                         }
                     }
-                    else if (busca_2(tab_diret, word)) {
-                        if (word == "EQU") {
-                            auto it_diret = map_diret.find(key);
-                            if ( it_diret != map_diret.end()) {
-                                flag_qu = 1;
-                            }
-                        }
-                        else if (word == "IF") {
-                            flag_if = 1;
-                            cout << "key: " << key << endl;
-                        }
-                        
+                    else if (word == "IF") {
+                        flag_if = 1;
+                        flag_ign = 1;
+                        //cout << "key: " << key << endl;
                     }
-                    
                     
                 }
+                                    
             }
+            // cout << "word: " << word << endl;
             word.clear();
         } else {
-            
             word += diret[i];
+            
+            
         }
     }
+    // cout << "word fora: " << word << endl;
+
+    if (flag_ign == 1) {
+        cout << "Apagando.. c" << endl;
+        diret.erase();
+        flag_ign = 0;
+    }
+
     if (flag_qu == 1) {
         auto it_diret = map_diret.find(key);
         if ( it_diret != map_diret.end()) {
@@ -830,11 +842,18 @@ void Functions::update_diretivas(map<string, string>& map_diret, map<string, Dir
         if ( it_diret != map_diret.end()) {
             cout << "s: " << it_diret->second << endl;
             if (int(stoi(it_diret->second)) == 0) {
-
+                flag_ign = 1;
+                cout << "ign: " << flag_ign << endl;
             } 
         }
-        cout << "w: "<< word << endl;
+        // cout << "w: "<< word << endl;
     }
+
+    // if (flag_ign == 1 || flag_qu == 1) {
+    //     flag_ign = 0;
+    //     cout << "Apagando.." << endl;
+    //     diret.erase();
+    // }
     // cout << word << endl;
     
 }

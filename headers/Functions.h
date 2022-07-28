@@ -67,7 +67,7 @@ class Functions {
         static string limpa_coment(ifstream& arq_entrada);
 
 
-        static void update_diretivas(map<string, string>& map_diret, map<string, Diretiva>& tab_diret, string& diret, string& key);
+        static void update_diretivas(map<string, string>& map_diret, map<string, Diretiva>& tab_diret, string& diret, int& flag_ign);
 
 };
 

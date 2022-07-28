@@ -41,8 +41,8 @@ int main (int argc, char **argv) {
 
             if (passagem == 0) {
                 cout << "Passagem 0" << endl;
-
-                string key;
+                int flag_ign = 0;
+                // string key;
                 string diret, file;
                 string line2;
                 map<string, string> map_diret;
@@ -53,9 +53,16 @@ int main (int argc, char **argv) {
                 for (int i=0; i<file.size(); i++) {
 
                     if (file[i] == '\n' || file[i] == '\t') {
-                        // cout << diret << endl;
-                        Functions::update_diretivas(map_diret, tab_diret, diret, key);
-                        line2 += diret + '\n';
+                        // cout << "diret: " << diret << endl;
+                        Functions::update_diretivas(map_diret, tab_diret, diret, flag_ign);
+
+                        if(diret.empty()) {
+                            // cout << "Vazio meu bom" << endl;
+                            line2 += diret;
+                        } else {
+                            line2 += diret + '\n';
+                        }
+
                         diret.clear();
                     } else {
                         diret += file[i];
@@ -63,10 +70,10 @@ int main (int argc, char **argv) {
 
                 }
 
-                for (auto itr = map_diret.begin(); itr != map_diret.end(); ++itr) {
-                    cout << itr->first
-                         << '\t' << itr->second << '\n';
-                }
+                // for (auto itr = map_diret.begin(); itr != map_diret.end(); ++itr) {
+                //     cout << itr->first
+                //          << '\t' << itr->second << '\n';
+                // }
                 
                 cout << "\nLine2:\n" << line2 << endl;
 
