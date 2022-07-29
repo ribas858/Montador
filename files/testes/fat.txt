@@ -1,7 +1,13 @@
-L1: EQU 0
-L2: EQU 0
-SECAO TEXTO
-IF L1
-LOAD SPACE ;FAZ ESTA OPERAçãO SE L1 FOR VERDADEIRO
-IF L2
-INPUT SPACE ;FAZ ESTA OPERAçãO SE L2 FOR VERDADEIRO
+L1: EqU 1
+L2: EqU 1
+L3: EqU 32
+L4: Equ 8
+
+SeCaO TeXtO
+If l1
+LoAd sPaCe ;FaZ EsTa oPeRaÇãO Se l1 FoR VeRdAdEiRo
+iF L2
+iNpUt sPaCe ;FaZ EsTa oPeRaÇãO Se l2 FoR VeRdAdEiRo
+copy val,  n1
+val: const l4
+n1: const l3

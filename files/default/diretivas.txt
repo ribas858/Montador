@@ -4,3 +4,10 @@ EQU      1 0
 IF       1 0
 MACRO    0 0
 ENDMACRO 0 0
+BEGIN    0 0
+END      0 0
+EXTERN   0 0
+PUBLIC   1 0
+SECAO    1 0
+TEXTO    0 0
+DADOS    0 0

@@ -1,0 +1,189 @@
+#include "./headers/Functions.h"
+
+int main (int argc, char **argv) {
+
+    int NUM_PASS;
+    string mont_mod = string(argv[1]);
+    if (mont_mod == "-p") {
+        NUM_PASS = 1;
+    }
+    else if (mont_mod == "-o") {
+        NUM_PASS = 3;
+    } else {
+        NUM_PASS = -1;
+    }
+
+    vector<string> linha;
+    string passagem_2;
+
+    int begin_line = 0;
+    int line_count = 1;
+    int estado = 0;
+    int cont_posicao = 0;
+    string lexema, file_string;
+    string name_file;
+
+    // char* mont_mod = argv[1];
+    char* arq_in = argv[2];
+    char* arq_out = argv[3];
+    char c, b_space;
+    Enunciado enunc;
+
+    string forma_linha[2] = {"nil", "nil"};
+    // nil -> Não Checado
+    // ckeck -> Checado:Sem
+    // rot/inst -> Checado:OK 
+    // Rotulo/Instrucao -> Checado:Erro
+    map<string, Instrucao> tab_inst;    // Map tabela de instruções
+    map<string,Diretiva> tab_diret;   // Map tabela de diretivas
+    map<string, Simbolo> tab_simbol;  // Map tabela de simbolos
+
+    Functions::ler_tab_instr(tab_inst);     // Tabela de instruções
+    Functions::ler_tab_diret(tab_diret);   // Tabela de diretivas
+   
+    name_file = Functions::GetNameFile(string(arq_in));
+    
+    
+    file_string =  Functions::up_file(arq_in);
+    // cout << file_string << endl;
+
+    if(!file_string.empty() && NUM_PASS > 0) {
+        for (int passagem = 0; passagem < NUM_PASS; passagem++) {
+            cout << "p: " << passagem <<endl;
+            if (passagem == 0) {
+                cout << "Passagem 0:" << endl;
+                
+                char b;
+                string diret;
+                string pre_file_string;
+                int flag_ign = 0;
+                int ign_coment = 0;
+                map<string, string> map_diret;
+
+                for (int i=0; i<file_string.size(); i++) {
+                    if (file_string[i] == ';') {
+                        ign_coment = 1;
+                    } 
+                    else if (file_string[i] == '\n') {
+                        ign_coment = 0;
+                    }
+
+                    if (ign_coment == 0) {
+                        if (file_string[i] == '\n' || file_string[i] == '\t') {
+                            // cout << "diret: " << diret << endl;
+                            Functions::update_diretivas(map_diret, tab_diret, diret, flag_ign);
+
+                            pre_file_string += diret;
+
+                            diret.clear();
+                        } else {
+                            diret += file_string[i];
+                        }
+                    }
+                }
+                // for(auto i = map_diret.begin(); i != map_diret.end(); i++) {
+                //     cout << i->first << " ";
+                //     cout << i->second << endl;
+                // }
+                map_diret.clear();
+                // cout << endl << pre_file_string;
+                ofstream arq_pre ("files/pre_processado/pre_" + name_file);
+                arq_pre << pre_file_string;
+                arq_pre.close();
+            }
+            else if (passagem == 1) {
+                cout << "Passagem 1:\n" << endl;
+
+                
+
+                Instrucao inst;
+                Diretiva diret;
+                string rot = "";
+                bool line_analise = true;
+                int estado = 0;
+                pair<int,int> virg;
+                int flag_v = 0;
+
+                int flag_section = 0;
+                int flag_data = 0;
+                int flag_test_sec = 0;
+                string msg = "";
+                
+                ifstream arq_entrada ("files/pre_processado/pre_" + name_file);
+                
+                while(arq_entrada.good()){
+                    // int atual_pos_file = arq_entrada.tellg();
+                    // cout << "main atual pos file: " << atual_pos_file << endl;
+                    // Functions::val_sections(flag_section, arq_entrada, begin_line, msg, passagem_2);
+
+                    // int atual_pos_file = arq_entrada.tellg();
+                    // cout << "main atual pos file: " << atual_pos_file << endl;
+
+                    
+                    
+                    // cout << c;
+
+                    if (flag_section == 1) {
+                        arq_entrada.get(c);
+                        Functions::Analise_rot_instr(arq_entrada, c, lexema, tab_inst, tab_diret, line_count, forma_linha, linha, begin_line, line_analise, estado, virg, flag_v, flag_test_sec);
+                    } else {
+                        flag_section = 1;
+                        Functions::print_errors(msg, 9, line_count);
+                    }
+
+                    if (c == '\n') {
+                        begin_line = arq_entrada.tellg();
+                        line_analise = true;
+                        
+                        if (forma_linha[0] != "nil" && forma_linha[1] != "nil") {
+                            // if (flag_data == 1) {
+                            //     flag_data = 0;
+                            // }
+                            cout << "=================== Linha: ";
+                            for (int i = 0; i < linha.size(); i++) {
+                                cout << linha[i] << " ";
+                            }
+                            cout << endl;
+
+                            Functions::passagem1(tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count);
+
+                            // cout << "Contador de posicao: " << cont_posicao << endl;
+                            
+                            //cout << "\nFim da linha: "<< line_count << " Rotulo[" << forma_linha[0] << "] | Instrução[" << forma_linha[1] << "]" << endl;
+
+                            for (int i = 0; i < linha.size(); i++) {
+                                passagem_2 += linha[i] + " ";
+                            }
+                            passagem_2 += "\n";
+                            linha.clear();
+                            forma_linha[0] = "nil";
+                            forma_linha[1] = "nil";
+                        }
+                        line_count++;
+                    }
+                }
+                line_count = 1;
+                arq_entrada.close();
+                cout << endl;
+                Functions::print_tab_simbol(tab_simbol);
+                cout << endl;
+            } 
+            else if (passagem == 2) {
+                cout << "Passagem 2:\n" << endl;
+                //cout << passagem_2;
+                // Functions::passagem2(arq_out, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count);
+            }
+            
+        }
+    } else {
+        Functions::print_errors("", 11, -1);
+        if(file_string.empty()) {
+            Functions::print_errors(arq_in, 12, -1);
+        }
+        if (NUM_PASS < 1) {
+            Functions::print_errors(mont_mod, 13, -1);
+        }
+        Functions::print_errors("", 14, -1);
+    }
+    return 0;
+}

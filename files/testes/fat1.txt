@@ -1,10 +1,14 @@
+Secao texto
 InPut n1
 iNpUT N2
 LoAd n1
 AdD N2
 StoRe n3
-OuTpUT N3
+L1: OuTpUT N3
+OuTpUT N4
 StOp
+secao dados
 n1: SpaCe
+n4: const 63
 N2: sPace
 n3: spAce

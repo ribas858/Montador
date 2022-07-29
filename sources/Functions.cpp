@@ -76,7 +76,7 @@ void Functions::insere_tab_simbol (map<string,Simbolo>& tab_simbol, string key, 
         
         simbol.SetRotulo() = key;
         simbol.SetEndereco() = pos;
-        cout << "entrouuuuu " << simbol.GetRotulo() << " -- " << simbol.GetEndereco() << endl;
+        // cout << "entrouuuuu " << simbol.GetRotulo() << " -- " << simbol.GetEndereco() << endl;
         tab_simbol.insert(pair<string, Simbolo> (key, simbol));
     } else {
         cout << "ERRO SEMÂNTICO -- Linha: " << line << " | Rótulo '" << key << "' Já Declarado Anteriormente" << endl;
@@ -85,7 +85,8 @@ void Functions::insere_tab_simbol (map<string,Simbolo>& tab_simbol, string key, 
 
 void Functions::print_tab_simbol (map<string,Simbolo> tab_simbol) {
     for (auto d : tab_simbol) {
-        cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
+        // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
+        cout << "Key: " << d.first << " -> " << d.second.GetEndereco() << endl;
     }
 }
 
@@ -231,40 +232,81 @@ bool Functions::busca_instrucao(map<string,Instrucao> tab_inst, map<string,Diret
 }
 
 void Functions::print_errors(string lexema, int cod, int line_count) {
+    string name;
+    string sn, sn1, sn2;
+    int n1, n2;
+
     switch (cod)
     {
     case 1:
-        cout << "Erro LÉXICO::Declaração de Rótulo Inválida -- (Esperado \"[LABEL][:]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro LÉXICO::Declaração de Rótulo Inválida -- (Esperado \"[LABEL][:]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 2:
-        cout << "Erro LÉXICO/SINTÁTICO::Tentativa de Dupla Declaração de Rótulo -- (Esperado \"[LABEL][:]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro LÉXICO/SINTÁTICO::Tentativa de Dupla Declaração de Rótulo -- (Esperado \"[LABEL][:]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 3:
-        cout << "Erro SEMÂNTICO::Dupla Declaração | Linha de Instrução Já Possui Rótulo -- (Esperado \"Instrução\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro SEMÂNTICO::Dupla Declaração | Linha de Instrução Já Possui Rótulo -- (Esperado \"Instrução\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 4:
-        cout << "Erro SINTÁTICO::Instrução Indefinida -- (Esperado \"[INSTRUCTION]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro SINTÁTICO::Instrução Indefinida -- (Esperado \"[INSTRUCTION]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
         break;
     case 5:
-        cout << "Erro SEMÂNTICO::Dupla Declaração | Linha de Instrução Já Possui Rótulo -- (Esperado \"Operando\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro SEMÂNTICO::Dupla Declaração | Linha de Instrução Já Possui Rótulo -- (Esperado \"Operando\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 6:
-        cout << "Erro LÉXICO::TOKEN Inválido | -- (Esperado \"[OP]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro LÉXICO::TOKEN Inválido | -- (Esperado \"[OP]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 7:
-        cout << "Erro LÉXICO::TOKEN ROTULO Inválido | --> \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro LÉXICO::TOKEN ROTULO Inválido | --> \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 8:
         cout << "Erro LÉXICO::TOKEN +99 Caracteres | --> Erro::Linha: " << line_count << endl;
         break;
     case 9:
-        cout << "Erro SINTÁTICO::Falta Secao Texto | -- (Esperado \"[SECAO TEXTO]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro SINTÁTICO::Falta Secao Texto | -- (Esperado \"[SECAO TEXTO]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 10:
-        cout << "Erro SINTÁTICO::Falta Secao Dados | -- (Esperado \"[SECAO DADOS]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro SINTÁTICO::Falta Secao Dados | -- (Esperado \"[SECAO DADOS]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
+        break;
+    case 11:
+        cout << "\nRun ->   \n./montador_rb ['-p' ou '-o'] [Seu Arquivo de Entrada] [Nome Arquivo de Saída]" << endl;
+        cout << "=============================================================================\n" << endl;
+        break;
+    case 12:
+        name = GetNameFile(lexema);
+        cout << "Arquivo de Entrada Inexistente:: [" << name << "] \n::Ou Diretório [" << lexema << "] Inválido\n" << endl;
+        break;
+    case 13:
+        cout << "Função do Montador Inválida:: [" << lexema << "]\nOpções: '-p' => PRE-PROCESSAR | '-o' => COMPILAR" << endl; 
+        break;
+    case 14:
+        cout << "=============================================================================\n" << endl;
+        break;
+    case 15:
+        for (int i =0; i<lexema.size(); i++) {
+            if(lexema[i] == '_'){
+                sn1 = sn;
+                sn.clear();
+            } else {
+                sn += lexema[i];
+            }
+        }
+        sn2 = sn;
+        n1 = stoi(sn1);
+        n2 = stoi(sn2);
+        cout << "\nErro SINTÁTICO::Numero de Operandos Inválido -- (Esperado \"[" << n2 <<  " OP]\" - Mas foi encontrado \"[" << n1 << " OP] Operando(s)\" ) Erro::Linha: " << line_count << endl << endl;
+        break;
+    case 16:
+        cout << "\nErro SEMÂNTICO::Símbolo/Operando Não Definido -- (Esperado \"Operando Declarado\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
+        break;
+    case 17:
+        cout << "\nErro SEMÂNTICO::Diretiva Na Secao Texto \n-- (Esperado \"\n[SECAO TEXTO] {INSTRUCAO}\n[SECAO DADOS] {DIRETIVA}\" - \nMas foi encontrado \"[SECAO TEXTO] {" << lexema << "}\" ) Erro::Linha: " << line_count << endl << endl;
+        break;
+    case 18:
+        cout << "\nErro SEMÂNTICO::Instrução Na Secao Dados \n-- (Esperado \"\n[SECAO TEXTO] {INSTRUCAO}\n[SECAO DADOS] {DIRETIVA}\" - \nMas foi encontrado \"[SECAO DADOS] {" << lexema << "}\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     default:
-        cout << "Erro não encontrado!!" << endl;
+        cout << "\nErro não encontrado!!\n" << endl;
         break;
     }
 }
@@ -324,44 +366,53 @@ bool Functions::rot_valido(string lexema, int cod) {
         }
     }
     else if (cod == 3) {
-        // cout << lexema << " func" << endl;
-        if ( (isdigit(lexema[0]) || lexema[0] == ',' || lexema[0] == ':' || lexema[lexema.size()-1] == ':' || lexema[lexema.size()-1] == ',') && lexema.size() > 1 ) {
-            return false;
-        } else {
-            for (int i = 0; i < lexema.size(); i++) {
-                if (!val_caracts(lexema[i])) {
-                    cout << int(lexema[i]) << endl;
-                    flag = 1;
-                }
-                if (lexema[i] == ':' || lexema[i] == ',') {
-                    if (i != lexema.size()-1 ) {
-                        flag = 1;
-                    } 
-                    // else if (lexema.size() == 1) {
-                    //     flag = 1;
-                    // } 
-                }
-            }
-            if (flag == 0) {
-                return true;
-            } else {
+        if (!isAllDigit(lexema)) {
+            // cout << lexema << " func" << endl;
+            if ( (isdigit(lexema[0]) || lexema[0] == ',' || lexema[0] == ':' || lexema[lexema.size()-1] == ':' || lexema[lexema.size()-1] == ',') && lexema.size() > 1 ) {
                 return false;
+            } else {
+                for (int i = 0; i < lexema.size(); i++) {
+                    if (!val_caracts(lexema[i])) {
+                        cout << int(lexema[i]) << endl;
+                        flag = 1;
+                    }
+                    if (lexema[i] == ':' || lexema[i] == ',') {
+                        if (i != lexema.size()-1 ) {
+                            flag = 1;
+                        } 
+                        // else if (lexema.size() == 1) {
+                        //     flag = 1;
+                        // } 
+                    }
+                }
+                if (flag == 0) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
+        } else {
+            return true;
         }
     }
     return false;
 }
 
 void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema, map<string, Instrucao>& tab_inst,
-    map<string, Diretiva>& tab_diret, int& line_count, string* forma_linha, vector<string>& linha, string& rot,
-        int& begin_line, bool& line_analise, int& estado, pair<int,int>& v, int& flag_v) {
+    map<string, Diretiva>& tab_diret, int& line_count, string* forma_linha, vector<string>& linha,
+        int& begin_line, bool& line_analise, int& estado, pair<int,int>& virgula, int& flag_v, int& flag_test_sec) {
     
     if (c == ' ' || c == '\n' || c == '\t') {
         int size = lexema.size();
         
         if (size > 0) {
             if (busca_instrucao(tab_inst, tab_diret, lexema)) {
-                
+                if (flag_test_sec == 0 && busca_2(tab_diret, lexema)) {
+                    // Functions::print_errors(lexema, 17, line_count);
+                }
+                else if (flag_test_sec == 1 && busca_1(tab_inst,lexema)) {
+                    // Functions::print_errors(lexema, 18, line_count);
+                }
                 //arq_entrada.seekg(-(size+1), ios::cur);
                 estado = 2;
             } else {
@@ -375,11 +426,6 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
             }
             
             switch (estado) {
-                case 0:
-                    // cout << "Estado 0" << endl;
-                    
-                    lexema.clear();
-                    break;
                 case 1:
                     // cout << "Estado 1" << endl;
                     
@@ -399,15 +445,27 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                         }
                         
                     } else {
-                        if (forma_linha[0] == "nil") {
-                            forma_linha[0] = "erro";
-                            linha.push_back("[rotulo]");
-                            Functions::print_errors(lexema, 1, line_count);
+                        if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 1).first == -1) {
+                            forma_linha[1] = "erro";
+                            linha.push_back("[inst]");
+                            // cout << lexema << endl;
+                            Functions::print_errors(lexema, 4, line_count);
+                        } else {
+                            if (forma_linha[1] != "erro") {
+                                if (forma_linha[0] == "nil") {
+                                    forma_linha[0] = "erro";
+                                    linha.push_back("[rotulo]");
+                                    Functions::print_errors(lexema, 1, line_count);
+                                }
+                            } else {
+                                forma_linha[0] = "check";
+                                linha.push_back(lexema);
+                            }
                         }
                     }
                     // cout << lexema << endl;
 
-                    //cout << "Rotulo[" << forma_linha[0] << "] | Instrução[" << forma_linha[1] << "]" << endl;
+                    // cout << "Rotulo[" << forma_linha[0] << "] | Instrução[" << forma_linha[1] << "]" << endl;
                     lexema.clear();
                     break;
 
@@ -461,15 +519,15 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                             } else {
                                 
                                 if (line_analise) {
-                                    v = has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 2);
+                                    virgula = has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 2);
                                     line_analise = false;
                                 }
 
-                                if (v.first > 0) {
+                                if (virgula.first > 0) {
                                     // cout << "flag_v: " << flag_v << endl;
-                                    if (v.first > 1) {
+                                    if (virgula.first > 1) {
                                         flag_v = 1;
-                                        v.first--;
+                                        virgula.first--;
                                         if (rot_valido(lexema, 2) && size <= 99+1) {
                                             // cout << "Rot valido" << endl;
                                         } else {
@@ -480,14 +538,14 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                                 Functions::print_errors(lexema, 6, line_count);
                                             }
                                         }
-                                        if (v.second == 1) {
+                                        if (virgula.second == 1) {
                                             linha.push_back(lexema+" ");
                                         } else {
                                             linha.push_back(lexema);
                                         }
                                     } else {
                                         
-                                        if (v.first < 2 && flag_v == 1) {
+                                        if (virgula.first < 2 && flag_v == 1) {
                                             flag_v = 0;
                                             if (rot_valido(lexema, 3) && size <= 99+1) {
                                                 // cout << "Rot valido" << endl;
@@ -512,7 +570,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                                 }
                                             }
                                         }
-                                        if (v.second == 1) {
+                                        if (virgula.second == 1) {
                                             linha.push_back(lexema+" ");
                                         } else {
                                             linha.push_back(lexema);
@@ -522,7 +580,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                     if (rot_valido(lexema, 3) && size <= 99+1) {
                                         // cout << "Rot valido" << endl;
                                     } else {
-                                        // cout << "erro Rot" << endl;
+                                        cout << "erro Rot" << endl;
                                         if (size > 99+1) {
                                             Functions::print_errors(lexema, 8, line_count);
                                         } else {
@@ -544,7 +602,6 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                     break;
             }
         }
-        
     } else {
         lexema += c;
     }
@@ -666,6 +723,7 @@ pair<int, int> Functions::has_line_instruction(ifstream& arq_entrada, map<string
     return make_pair(-3,-3);
 }
 
+
 pair<bool, string> Functions::section_test(ifstream& arq_entrada, int begin_line) {
     char b;
     int atual_pos_file = arq_entrada.tellg();
@@ -687,47 +745,29 @@ pair<bool, string> Functions::section_test(ifstream& arq_entrada, int begin_line
 
     // cout << "Line size " << line << endl;
     if (line == "SECAO TEXTO" || line == "SECAO DADOS") {
-        cout << "Line:: " << line << endl;
+        // cout << "Line:: " << line << endl;
         return make_pair(true, line);
     } else {
         return make_pair(false, line);
     }
 }
 
-void Functions::val_sections(int& flag_section, ifstream& arq_entrada, int& begin_line, int& flag_data, string& lexema, int line_count, string& msg, int cod) {
-    if (cod == 1) {
-        if (flag_section == 0) {
-            auto aux = Functions::section_test(arq_entrada, begin_line);
-            if(aux.first) {
-                flag_section = 1;
-                arq_entrada.seekg(aux.second.size(), ios::cur);
-                flag_data = 1;
-            } else {
-                msg = aux.second;
-                
-                arq_entrada.seekg(aux.second.size(), ios::cur);
-                flag_data = 1;
-            }
-        }
-
-    } 
-    else if (cod == 2) {
-        if (lexema == "SECAO" && flag_data == 1) {
-            lexema.clear();
-            flag_data = 0;
-            auto aux = Functions::section_test(arq_entrada, begin_line);
-            if (!aux.first) {
-                // cout << "Falta secao dados" << endl;
-                arq_entrada.seekg(aux.second.size()-4, ios::cur);
-                Functions::print_errors(aux.second, 10, line_count);
-            } else {
-                arq_entrada.seekg(aux.second.size()-4, ios::cur);
-            }
+void Functions::val_sections(int& flag_section, ifstream& arq_entrada, int& begin_line, string& msg, string& passagem_2) {
+    if (flag_section == 0) {
+        auto aux = Functions::section_test(arq_entrada, begin_line);
+        // cout << "cod 1: aux first: " << aux.second << endl;
+        if(aux.first) {
+            flag_section = 1;
+            passagem_2 += aux.second + "\n";
+            arq_entrada.seekg(aux.second.size(), ios::cur);
+        } else {
+            msg = aux.second;
+            arq_entrada.seekg(aux.second.size(), ios::cur);
         }
     }
 }
 
-void Functions::up_file(char *arq_in) {
+string Functions::up_file(char *arq_in) {
     char c;
     string file;
     ifstream arq_entrada(arq_in);
@@ -737,38 +777,11 @@ void Functions::up_file(char *arq_in) {
             arq_entrada.get(c);
 		    file += c;
         }
-    } else {
-        cout << "Arquivo inexistente" << endl;
-    }
-    arq_entrada.close();
-    
-    file.pop_back();
-    for(int i=0; i<file.size(); i++) {
-        file[i] = toupper(file[i]);
-    }
-
-    ofstream arq_cod2(arq_in);
-    if (arq_cod2.is_open()){
-        arq_cod2 << file;
-    } else {
-        cout << "Arquivo inexistente" << endl;
-    }
-    arq_cod2.close();
-}
-
-string Functions::limpa_coment(ifstream& arq_entrada) {
-    char b;
-    string file;
-    int ign_coment = 0;
-    while(arq_entrada.good()){
-        arq_entrada.get(b);
-        if (b == ';') {
-            ign_coment = 1;
-        } else if (b == '\n') {
-            ign_coment = 0;
-        }
-        if (ign_coment == 0) {
-            file += b;
+        
+        arq_entrada.close();
+        file.pop_back();
+        for(int i=0; i<file.size(); i++) {
+            file[i] = toupper(file[i]);
         }
     }
     return file;
@@ -776,25 +789,27 @@ string Functions::limpa_coment(ifstream& arq_entrada) {
 
 void Functions::update_diretivas(map<string, string>& map_diret, map<string, Diretiva>& tab_diret, string& diret, int& flag_ign) {
     char b;
-    string word, key;
+    string word, key, word_aux;
     int size;
     int flag_qu = 0;
     int flag_if = 0;
-    // cout << diret << endl;
+    int flag_const = 0;
+    string diret_aux = diret;
+    diret.clear();
 
-    for (int i=0; i<diret.size(); i++) {
-        // cout << "Aquii: " << diret[i] << " : " << int(diret[i]) << endl;
+    for (int i=0; i<diret_aux.size(); i++) {
         
-        if (diret[i] == ' ') {
+        if (diret_aux[i] == ' ') {
             
             size = word.size();
             if (size > 0) {
                 if (word[size-1] == ':') {
-                    word.pop_back();
-                    key = word;
-                    auto it_diret = map_diret.find(word);
+                    word_aux = word;
+                    word_aux.pop_back();
+                    key = word_aux;
+                    auto it_diret = map_diret.find(word_aux);
                     if ( it_diret == map_diret.end()) {
-                        map_diret.insert(make_pair(word, "not"));    
+                        map_diret.insert(make_pair(word_aux, "not"));    
                     }
                 }
                 else if (busca_2(tab_diret, word)) {
@@ -809,51 +824,186 @@ void Functions::update_diretivas(map<string, string>& map_diret, map<string, Dir
                     else if (word == "IF") {
                         flag_if = 1;
                         flag_ign = 1;
-                        //cout << "key: " << key << endl;
                     }
-                    
+                    else if (word == "CONST") {
+                        // cout << "const meu parceiro" << endl;
+                        flag_const = 1;
+                    }
                 }
-                                    
             }
-            // cout << "word: " << word << endl;
+            // cout << "word: " << word << " size: " << word.size() << endl;
+            diret += word + " ";
             word.clear();
         } else {
-            word += diret[i];
-            
-            
+            word += diret_aux[i];
         }
     }
-    // cout << "word fora: " << word << endl;
+    if (flag_const == 1) {
+        auto it_diret = map_diret.find(word);
+        if ( it_diret != map_diret.end()) {
+            word = it_diret->second;
+        }
+        flag_const = 0;
+    }
+
+    diret += word + '\n';
 
     if (flag_ign == 1) {
-        cout << "Apagando.. c" << endl;
+        // cout << "Apagando.. c" << endl;
         diret.erase();
         flag_ign = 0;
     }
 
+    
+
     if (flag_qu == 1) {
+        // cout << "key: " << key << endl;
         auto it_diret = map_diret.find(key);
         if ( it_diret != map_diret.end()) {
             it_diret->second = word;
         }
     }
+
     if (flag_if == 1) {
         auto it_diret = map_diret.find(word);
         if ( it_diret != map_diret.end()) {
-            cout << "s: " << it_diret->second << endl;
             if (int(stoi(it_diret->second)) == 0) {
                 flag_ign = 1;
-                cout << "ign: " << flag_ign << endl;
             } 
         }
-        // cout << "w: "<< word << endl;
+    }
+}
+
+string Functions::GetNameFile(string src) {
+    string name;
+    for (int i=src.size(); i>-1; i--) {
+        if (src[i] == '/') {
+            break;
+        }
+        name += src[i];
+    }
+    reverse(name.begin(), name.end());
+    return name;
+}
+
+void Functions::passagem1(map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
+    vector<string>& linha, int& cont_posicao, int& line_count) {
+    
+    int n_operandos = 0;
+    int tam_instrucao = 0;
+    int tam_diretiva = 0;
+    int cont = 0;
+    int achou_inst = 0;
+    
+    for (auto i = 0; i < linha.size(); i++) {
+        if(retur_op_inst(tab_inst, linha[i]) != -1) {
+            // cout << "Inst: " << linha[i] << " cont pos: " << cont_posicao << endl;
+            n_operandos = retur_op_inst(tab_inst, linha[i]);
+            tam_instrucao = retur_tam_inst(tab_inst, linha[i]);
+            achou_inst = 1;
+        }
+        else if (retur_op_diret(tab_diret, linha[i]) != -1) {
+            //cout << "Diret: " << linha[i] << " cont pos: " << cont_posicao << endl;
+            n_operandos = retur_op_diret(tab_diret, linha[i]);
+            tam_diretiva = retur_tam_diret(tab_diret, linha[i]);
+            achou_inst = 1;
+        } else {
+            if (achou_inst == 1) {
+                cont++;
+                // cout << "End. " << cont + cont_posicao << ": " << linha[i] << endl; 
+            } else {
+                if(linha[i][linha[i].size()-1] == ':') {
+                    string aux = linha[i];
+                    aux.pop_back();
+                    insere_tab_simbol(tab_simbol, aux, cont_posicao, line_count);
+                }
+            }
+            
+        }
+    }
+    if (cont != n_operandos) {
+        print_errors((to_string(cont) + "_" + to_string(n_operandos)), 15, line_count);
+    }
+    cont_posicao += tam_instrucao + tam_diretiva;
+    //cout << "N_op: "<< n_operandos << " tam_inst: " << tam_instrucao << " cont: " << cont << endl;
+}
+
+void Functions::passagem2(char* arq_out, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
+    string& passagem2, int& cont_posicao, int& line_count) {
+    
+    int flag_const = 0;
+    string lexema, cod_obj;
+    for (int i = 0; i < passagem2.size(); i++) {
+        
+        if (passagem2[i] == ' ' || passagem2[i] == '\n' || passagem2[i] == '\t') {
+            if(lexema.size() > 0) {
+                if (lexema != "SECAO" && lexema != "TEXTO" && lexema != "DADOS") {
+                    // cout << lexema << endl;
+                    if(!busca_instrucao(tab_inst, tab_diret, lexema)) {
+                        if (lexema[lexema.size()-1] != ':') {
+                            if (lexema[lexema.size()-1] == ',') {
+                                lexema.pop_back();
+                            }
+                            int end_sym = busca_tab_simbol(tab_simbol, lexema);
+                            if (end_sym > -1) {
+                                // cout << "End symbol: " << lexema << " " <<  end_sym << endl;
+                                cod_obj += to_string(end_sym) + " ";
+                            } else {
+                                if (flag_const == 1) {
+                                    if(isAllDigit(lexema)) {
+                                        // cout << "digit: "<< lexema << endl;
+                                        cod_obj += lexema + " ";
+                                    }
+
+                                } else {
+                                    print_errors(lexema, 16, line_count);
+                                }
+                            }
+                        }
+                    } else {
+                        if (busca_1(tab_inst, lexema)) {
+                            auto inst = retur_inst(tab_inst, lexema);
+                            cod_obj += to_string(inst.GetCodigo()) + " ";
+                        }
+                        else if (busca_2(tab_diret, lexema)) {
+                            auto diret = retur_diret(tab_diret, lexema);
+                            if (lexema == "SPACE") {
+                                cod_obj += to_string(diret.GetOperando()) + " ";
+                            }
+                            else if (lexema == "CONST") {
+                                flag_const = 1;
+                            }
+                        }                
+                    }
+                    lexema.clear();
+                } else {
+                    lexema.clear();
+                }
+            }
+            if (passagem2[i] == '\n') {
+                line_count++;
+            }
+        } else {
+            lexema += passagem2[i];
+        }
     }
 
-    // if (flag_ign == 1 || flag_qu == 1) {
-    //     flag_ign = 0;
-    //     cout << "Apagando.." << endl;
-    //     diret.erase();
-    // }
-    // cout << word << endl;
-    
+    cout << cod_obj << endl;
+    ofstream arq_saida (arq_out);
+    arq_saida << cod_obj;
+    arq_saida.close();
+}
+
+bool Functions::isAllDigit(string dig) {
+    int flag = 0;
+    for (int i=0; i<dig.size(); i++) {
+        if (!isdigit(dig[i])) {
+            flag++;
+        }
+    }
+    if (flag > 0) {
+        return false;
+    } else {
+        return true;
+    }
 }
