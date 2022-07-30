@@ -13,6 +13,8 @@
 #include "Simbolo.h"
 #include "Instrucao.h"
 #include "Diretiva.h"
+#include "DiretivaExtend.h"
+#include "Definicao.h"
 #include "Enunciado.h"
 
 using namespace std;

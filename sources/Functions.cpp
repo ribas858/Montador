@@ -33,6 +33,23 @@ void Functions::ler_tab_diret (map<string,Diretiva>& tab_diret) {
     //tab_inst.erase(tab_inst.find("ADD"), tab_inst.find("STOP"));
 }
 
+void Functions::ler_tab_extend (map<string, DiretivaExtend>& tab_extend) {
+        
+    DiretivaExtend extend;   // Item tabela de diretivas
+    ifstream arq_tab_extend ("files/default/diretivas_extend.txt");
+    // cout << "lendo" << endl;
+    
+    if (!arq_tab_extend) {
+        cout << endl << "Arquivo TXT de dados da tabela Extendida de diretivas esta faltando." 
+            << endl << "Verifique o local do arquivos e tente novamentes!!" << "\n\n";
+        abort();
+    }
+
+    while (arq_tab_extend >> extend.SetInstrucao() >> extend.SetOperando() >> extend.SetTamanho() ) {
+        tab_extend.insert(pair<string, DiretivaExtend> (extend.GetInstrucao(), extend));
+    }
+}
+
 void Functions::print_inst_por_key (map<string, Instrucao> tab_inst, string key) {
 
     map<string,  Instrucao>::iterator it_tab_inst;
@@ -65,6 +82,12 @@ void Functions::print_diret (map<string,Diretiva> tab_diret) {
     }
 }
 
+void Functions::print_extend (map<string, DiretivaExtend> tab_extend) {
+    for (auto d : tab_extend) {
+        cout << "Key: " << d.first << " -> " << d.second.GetInstrucao() << " " << d.second.GetOperando()  << " " <<  d.second.GetTamanho() << endl;
+    }
+}
+
 void Functions::insere_tab_simbol (map<string,Simbolo>& tab_simbol, string key, int pos, int line) {
 
     Simbolo simbol;
@@ -76,6 +99,8 @@ void Functions::insere_tab_simbol (map<string,Simbolo>& tab_simbol, string key, 
         
         simbol.SetRotulo() = key;
         simbol.SetEndereco() = pos;
+        simbol.SetExterno() = false;
+        simbol.SetPublico() = false;
         // cout << "entrouuuuu " << simbol.GetRotulo() << " -- " << simbol.GetEndereco() << endl;
         tab_simbol.insert(pair<string, Simbolo> (key, simbol));
     } else {
@@ -83,10 +108,34 @@ void Functions::insere_tab_simbol (map<string,Simbolo>& tab_simbol, string key, 
     }
 }
 
+void Functions::insere_tab_def (map<string, Definicao>& tab_def, string key, int pos, int line) {
+
+    Definicao def;
+    map<string, Definicao>::iterator it_tab_def;
+    
+    
+    it_tab_def = tab_def.find(key);
+    if ( it_tab_def == tab_def.end()) {
+        
+        def.SetRotulo() = key;
+        def.SetEndereco() = pos;
+        tab_def.insert(pair<string, Definicao> (key, def));
+    } else {
+        cout << "ERRO SEMÂNTICO -- Linha: " << line << " | Rótulo '" << key << "' Já Declarado Anteriormente" << endl;
+    }
+}
+
+void Functions::print_tab_def (map<string, Definicao> tab_def) {
+    for (auto d : tab_def) {
+        // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
+        cout << "Key: " << d.first << " -> " << d.second.GetEndereco() << endl;
+    }
+}
+
 void Functions::print_tab_simbol (map<string,Simbolo> tab_simbol) {
     for (auto d : tab_simbol) {
         // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
-        cout << "Key: " << d.first << " -> " << d.second.GetEndereco() << endl;
+        cout << "Key: " << d.first << " -> " << d.second.GetEndereco() << " | Ext-> " << d.second.GetExterno() << " | Pub-> " << d.second.GetPublico() << endl;
     }
 }
 
@@ -161,6 +210,29 @@ Diretiva Functions::retur_diret (map<string,Diretiva> tab_diret, string key) {
     }
 }
 
+void Functions::extern_simbol (map<string,Simbolo>& tab_simbol, string key) {
+    map<string, Simbolo>::iterator it_tab_simbol;
+    
+    it_tab_simbol = tab_simbol.find(key);
+    if ( it_tab_simbol != tab_simbol.end()) {
+        it_tab_simbol->second.SetExterno() = true;
+    }
+}
+
+void Functions::public_simbol (map<string, Simbolo>& tab_simbol, map<string, Definicao>& tab_def) {
+    map<string, Simbolo>::iterator it_tab_simbol;
+    map<string, Definicao>::iterator it_tab_def;
+
+    for (it_tab_def = tab_def.begin(); it_tab_def != tab_def.end(); it_tab_def++) {
+        for (it_tab_simbol = tab_simbol.begin(); it_tab_simbol != tab_simbol.end(); it_tab_simbol++) {
+            if (it_tab_def->first == it_tab_simbol->first) {
+                it_tab_def->second.SetEndereco() = it_tab_simbol->second.GetEndereco();
+                it_tab_simbol->second.SetPublico() = true;
+            }
+        }
+    }
+}
+
 int Functions::busca_tab_simbol (map<string,Simbolo> tab_simbol, string key) {
 
     map<string, Simbolo>::iterator it_tab_simbol;
@@ -170,6 +242,19 @@ int Functions::busca_tab_simbol (map<string,Simbolo> tab_simbol, string key) {
         return it_tab_simbol->second.GetEndereco();
     } else {
         return -1;
+    }
+}
+
+Simbolo Functions::return_simbol (map<string,Simbolo> tab_simbol, string key) {
+    Simbolo sim;
+    sim.SetExiste() = false;
+    map<string, Simbolo>::iterator it_tab_simbol;
+
+    it_tab_simbol = tab_simbol.find(key);
+    if ( it_tab_simbol != tab_simbol.end()) {
+        return it_tab_simbol->second;
+    } else {
+        return sim;
     }
 }
 
@@ -223,6 +308,17 @@ bool Functions::busca_2 (map<string,Diretiva> tab_diret, string key) {
     }
 }
 
+bool Functions::busca_extend (map<string,DiretivaExtend> tab_extend, string key) {
+    map<string, DiretivaExtend>::iterator it_tab_extend;
+    
+    it_tab_extend = tab_extend.find(key);
+    if ( it_tab_extend != tab_extend.end()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool Functions::busca_instrucao(map<string,Instrucao> tab_inst, map<string,Diretiva> tab_diret, string key) {
     if(busca_1(tab_inst, key) || busca_2(tab_diret, key)) {
         return true;
@@ -248,7 +344,7 @@ void Functions::print_errors(string lexema, int cod, int line_count) {
         cout << "\nErro SEMÂNTICO::Dupla Declaração | Linha de Instrução Já Possui Rótulo -- (Esperado \"Instrução\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 4:
-        cout << "\nErro SINTÁTICO::Instrução Indefinida -- (Esperado \"[INSTRUCTION]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl;
+        cout << "\nErro SINTÁTICO::Instrução Indefinida -- (Esperado \"[INSTRUCTION]\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
         break;
     case 5:
         cout << "\nErro SEMÂNTICO::Dupla Declaração | Linha de Instrução Já Possui Rótulo -- (Esperado \"Operando\" - Mas foi encontrado \"[" << lexema << "]\" ) Erro::Linha: " << line_count << endl << endl;
@@ -399,25 +495,63 @@ bool Functions::rot_valido(string lexema, int cod) {
 }
 
 void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema, map<string, Instrucao>& tab_inst,
-    map<string, Diretiva>& tab_diret, int& line_count, string* forma_linha, vector<string>& linha,
-        int& begin_line, bool& line_analise, int& estado, pair<int,int>& virgula, int& flag_v, int& flag_test_sec) {
+    map<string, Diretiva>& tab_diret, map<string, DiretivaExtend>& tab_extend, int& line_count, string* forma_linha, vector<string>& linha,
+        int& begin_line, bool& line_analise, int& estado, pair<int,int>& virgula, int& flag_v,
+        bool* section_t, bool* section_d, int& flag_sec_t, int& flag_sec_d) {
     
     if (c == ' ' || c == '\n' || c == '\t') {
         int size = lexema.size();
         
         if (size > 0) {
-            if (busca_instrucao(tab_inst, tab_diret, lexema)) {
-                if (flag_test_sec == 0 && busca_2(tab_diret, lexema)) {
-                    // Functions::print_errors(lexema, 17, line_count);
+            if (busca_instrucao(tab_inst, tab_diret, lexema) || busca_extend(tab_extend, lexema)) {
+
+                if (!section_t[0] && !section_t[1]) {
+                    // cout << "Nao chegou na secao texto ainda " << lexema << endl;
                 }
-                else if (flag_test_sec == 1 && busca_1(tab_inst,lexema)) {
-                    // Functions::print_errors(lexema, 18, line_count);
+               
+                if ((section_t[0] && section_t[1]) && (!section_d[0] && !section_d[1]) && busca_2(tab_diret,lexema)) {
+                    Functions::print_errors(lexema, 17, line_count);
+                } else {
+                    // cout << "lex: " << lexema << " busca2: " << busca_2(tab_diret,lexema) << " flag_d: " << flag_sec_d << endl;
+                    // cout << "section t0: " << section_t[0] << " section t1: " << section_t[1] << endl;
+                    // cout << "section d0: " << section_d[0] << " section d1: " << section_d[1] << endl;
+                    if ( (section_t[0] && section_t[1]) && (!section_d[0] || !section_d[1]) && busca_2(tab_diret,lexema) && flag_sec_d == 0) {
+                        Functions::print_errors(lexema, 10, line_count);
+                        flag_sec_d = 1;
+                        // cout << "falta secao dados" << endl;
+                    }
                 }
-                //arq_entrada.seekg(-(size+1), ios::cur);
+
+                if ((section_d[0] && section_d[1]) && busca_1(tab_inst,lexema)) {
+                    Functions::print_errors(lexema, 18, line_count);
+                } else {
+                    if ((!section_t[0] || !section_t[1]) && busca_1(tab_inst,lexema) && flag_sec_t == 0) {
+                        Functions::print_errors(lexema, 9, line_count);
+                        flag_sec_t = 1;
+                        // cout << "falta secao texto" << endl;
+                    }
+                }
+                
+                if (lexema == "SECAO") {
+                    section_t[0] = true;
+                    section_d[0] = true;
+                }
+                if (lexema == "TEXTO") {
+                    section_t[0] = true;
+                    section_t[1] = true;
+                    if (!section_d[1]) {
+                        section_d[0] = false;
+                    }
+                }
+                if (lexema == "DADOS") {
+                    section_d[0] = true;
+                    section_d[1] = true;
+                    if (!section_t[1]) {
+                        section_t[0] = false;
+                    }
+                }
                 estado = 2;
             } else {
-                // cout << -(size+1) << endl;
-                //arq_entrada.seekg(-(size+1), ios::cur);
                 if (forma_linha[0] == "nil") {
                     estado = 1;
                 } else {
@@ -445,7 +579,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                         }
                         
                     } else {
-                        if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 1).first == -1) {
+                        if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, tab_extend, begin_line, 1).first == -1) {
                             forma_linha[1] = "erro";
                             linha.push_back("[inst]");
                             // cout << lexema << endl;
@@ -487,10 +621,10 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                     // cout << "Estado 3" << endl;
                     
                     
-                    if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 1).first == -1) {
+                    if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, tab_extend, begin_line, 1).first == -1) {
                             forma_linha[1] = "erro";
                             linha.push_back("[inst]");
-                            cout << lexema << endl;
+                            // cout << lexema << endl;
                             Functions::print_errors(lexema, 4, line_count);
                             
                         
@@ -519,7 +653,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                             } else {
                                 
                                 if (line_analise) {
-                                    virgula = has_line_instruction(arq_entrada, tab_inst, tab_diret, begin_line, 2);
+                                    virgula = has_line_instruction(arq_entrada, tab_inst, tab_diret, tab_extend, begin_line, 2);
                                     line_analise = false;
                                 }
 
@@ -617,7 +751,7 @@ bool Functions::duplicate_vector(vector<string> v, string key) {
 
 }
 
-pair<int, int> Functions::has_line_instruction(ifstream& arq_entrada, map<string, Instrucao>& tab_inst, map<string, Diretiva>& tab_diret, int begin_line, int cod) {
+pair<int, int> Functions::has_line_instruction(ifstream& arq_entrada, map<string, Instrucao>& tab_inst, map<string, Diretiva>& tab_diret, map<string, DiretivaExtend>& tab_extend, int begin_line, int cod) {
     if (cod == 1) {
         char b;
         string word;
@@ -637,7 +771,7 @@ pair<int, int> Functions::has_line_instruction(ifstream& arq_entrada, map<string
             arq_entrada.get(b);
             if (b == ' ' || b == '\t' || b == '\n') {
                 if (word.size() > 0) {
-                    if (busca_instrucao(tab_inst, tab_diret, word)) {
+                    if (busca_instrucao(tab_inst, tab_diret, word) || busca_extend(tab_extend, word)) {
                         has_inst++;
                     } else {
                         if (has_inst == 0) {
@@ -886,7 +1020,7 @@ string Functions::GetNameFile(string src) {
     return name;
 }
 
-void Functions::passagem1(map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
+void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
     vector<string>& linha, int& cont_posicao, int& line_count) {
     
     int n_operandos = 0;
@@ -894,6 +1028,9 @@ void Functions::passagem1(map<string, Simbolo>& tab_simbol, map<string,Instrucao
     int tam_diretiva = 0;
     int cont = 0;
     int achou_inst = 0;
+
+    string rot;
+    int flag_pub = 0;
     
     for (auto i = 0; i < linha.size(); i++) {
         if(retur_op_inst(tab_inst, linha[i]) != -1) {
@@ -912,9 +1049,23 @@ void Functions::passagem1(map<string, Simbolo>& tab_simbol, map<string,Instrucao
                 cont++;
                 // cout << "End. " << cont + cont_posicao << ": " << linha[i] << endl; 
             } else {
+                // cout << "else: " << linha[i] << endl;
+                if (flag_pub == 1) {
+                    insere_tab_def(tab_def, linha[i], cont_posicao, line_count);
+                    flag_pub = 0;
+                }
+                if (linha[i] == "EXTERN") {
+                    extern_simbol(tab_simbol, rot);
+                    rot = "";
+                } 
+                else if (linha[i] == "PUBLIC") {
+                    // cout << "pub: " << linha[i] << endl;
+                    flag_pub = 1;
+                }
                 if(linha[i][linha[i].size()-1] == ':') {
                     string aux = linha[i];
                     aux.pop_back();
+                    rot = aux;
                     insere_tab_simbol(tab_simbol, aux, cont_posicao, line_count);
                 }
             }
@@ -925,29 +1076,47 @@ void Functions::passagem1(map<string, Simbolo>& tab_simbol, map<string,Instrucao
         print_errors((to_string(cont) + "_" + to_string(n_operandos)), 15, line_count);
     }
     cont_posicao += tam_instrucao + tam_diretiva;
-    //cout << "N_op: "<< n_operandos << " tam_inst: " << tam_instrucao << " cont: " << cont << endl;
+    // cout << "N_op: "<< n_operandos << " tam_inst: " << tam_instrucao << " tam diretiva: " << tam_diretiva << " cont: " << cont << endl;
 }
 
 void Functions::passagem2(char* arq_out, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-    string& passagem2, int& cont_posicao, int& line_count) {
-    
+    string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend) {
+    cout << cont_posicao << endl;
     int flag_const = 0;
     string lexema, cod_obj;
+    int libera_cont = 0;
+    int cont = 0;
+    int cont2 = 0;
+
+    int inst_tam = 0;
+    int diret_tam = 0;
     for (int i = 0; i < passagem2.size(); i++) {
         
         if (passagem2[i] == ' ' || passagem2[i] == '\n' || passagem2[i] == '\t') {
             if(lexema.size() > 0) {
-                if (lexema != "SECAO" && lexema != "TEXTO" && lexema != "DADOS") {
-                    // cout << lexema << endl;
-                    if(!busca_instrucao(tab_inst, tab_diret, lexema)) {
-                        if (lexema[lexema.size()-1] != ':') {
+                //if (lexema != "SECAO" && lexema != "TEXTO" && lexema != "DADOS") {
+                   
+                    if(!busca_instrucao(tab_inst, tab_diret, lexema) && !busca_extend(tab_extend, lexema)) {
+                        //cout <<"DENTRO IF " << lexema << endl;
+                        if (lexema[lexema.size()-1] != ':' && libera_cont == 1) {
+                            if (libera_cont == 1 && flag_const == 0) {
+                                cont2++;
+                                cont = cont_posicao + cont2;
+                                // cout <<"lexema: " << lexema << " cont mano: " << cont << endl;
+                            }
+
                             if (lexema[lexema.size()-1] == ',') {
                                 lexema.pop_back();
                             }
-                            int end_sym = busca_tab_simbol(tab_simbol, lexema);
-                            if (end_sym > -1) {
-                                // cout << "End symbol: " << lexema << " " <<  end_sym << endl;
-                                cod_obj += to_string(end_sym) + " ";
+                            // int end_sym = busca_tab_simbol(tab_simbol, lexema);
+                            Simbolo s = return_simbol(tab_simbol, lexema);
+                            if (s.GetExiste()) {
+                                    
+                                    if (s.GetExterno()) {
+                                        cout << "End symbol: " << lexema << " " <<  cont << endl;
+                                    }
+                                    // cout <<"s exist: " << lexema << endl;
+                                    cod_obj += to_string(s.GetEndereco()) + " ";
                             } else {
                                 if (flag_const == 1) {
                                     if(isAllDigit(lexema)) {
@@ -961,31 +1130,49 @@ void Functions::passagem2(char* arq_out, map<string, Simbolo>& tab_simbol, map<s
                             }
                         }
                     } else {
+                        
+                        if (lexema == "TEXTO") {
+                            libera_cont = 1;
+                        }
+                        
                         if (busca_1(tab_inst, lexema)) {
+                            // cout << "lexema1: " << lexema << endl;
                             auto inst = retur_inst(tab_inst, lexema);
+                            inst_tam = inst.GetTamanho();
                             cod_obj += to_string(inst.GetCodigo()) + " ";
                         }
                         else if (busca_2(tab_diret, lexema)) {
+                            // cout << "lexema2: " << lexema << endl;
                             auto diret = retur_diret(tab_diret, lexema);
+                            diret_tam = diret.GetTamanho();
                             if (lexema == "SPACE") {
                                 cod_obj += to_string(diret.GetOperando()) + " ";
                             }
                             else if (lexema == "CONST") {
                                 flag_const = 1;
                             }
-                        }                
+                        }
+                                  
                     }
+                    
                     lexema.clear();
-                } else {
-                    lexema.clear();
-                }
+                // } else {
+                //     lexema.clear();
+                // }
             }
             if (passagem2[i] == '\n') {
+                // cout << "Contador de posicao: " << cont_posicao << " cont: " << cont << " libera_cont: " << libera_cont << " flag_const: " << flag_const << endl;
+                cont_posicao += inst_tam + diret_tam;
+                inst_tam = 0;
+                diret_tam = 0;
+                cont = 0;
+                cont2 = 0;
                 line_count++;
             }
         } else {
             lexema += passagem2[i];
         }
+        
     }
 
     cout << cod_obj << endl;

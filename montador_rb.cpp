@@ -38,8 +38,13 @@ int main (int argc, char **argv) {
     map<string,Diretiva> tab_diret;   // Map tabela de diretivas
     map<string, Simbolo> tab_simbol;  // Map tabela de simbolos
 
+    map<string, DiretivaExtend> tab_extend;  // Map tabela extendida de diretivas
+
+    map<string, Definicao> tab_def;  // Map tabela de definicao
+
     Functions::ler_tab_instr(tab_inst);     // Tabela de instruções
     Functions::ler_tab_diret(tab_diret);   // Tabela de diretivas
+    Functions::ler_tab_extend(tab_extend);   // Tabela de extendida
    
     name_file = Functions::GetNameFile(string(arq_in));
     
@@ -106,8 +111,14 @@ int main (int argc, char **argv) {
 
                 int flag_section = 0;
                 int flag_data = 0;
-                int flag_test_sec = 0;
+                
                 string msg = "";
+
+                int flag_sec_t = 0;
+                int flag_sec_d = 0;
+
+                bool section_t[2] = {false, false};
+                bool section_d[2] = {false, false};
                 
                 ifstream arq_entrada ("files/pre_processado/pre_" + name_file);
                 
@@ -123,13 +134,10 @@ int main (int argc, char **argv) {
                     
                     // cout << c;
 
-                    if (flag_section == 1) {
-                        arq_entrada.get(c);
-                        Functions::Analise_rot_instr(arq_entrada, c, lexema, tab_inst, tab_diret, line_count, forma_linha, linha, begin_line, line_analise, estado, virg, flag_v, flag_test_sec);
-                    } else {
-                        flag_section = 1;
-                        Functions::print_errors(msg, 9, line_count);
-                    }
+                    arq_entrada.get(c);
+                    Functions::Analise_rot_instr(arq_entrada, c, lexema, tab_inst, tab_diret, tab_extend, line_count, forma_linha, linha, begin_line, line_analise, estado, virg, flag_v,
+                                                    section_t, section_d, flag_sec_t, flag_sec_d);
+            
 
                     if (c == '\n') {
                         begin_line = arq_entrada.tellg();
@@ -145,7 +153,7 @@ int main (int argc, char **argv) {
                             }
                             cout << endl;
 
-                            Functions::passagem1(tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count);
+                            Functions::passagem1(tab_def, tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count);
 
                             // cout << "Contador de posicao: " << cont_posicao << endl;
                             
@@ -163,15 +171,20 @@ int main (int argc, char **argv) {
                     }
                 }
                 line_count = 1;
+                cont_posicao = 0;
                 arq_entrada.close();
+                Functions::public_simbol(tab_simbol, tab_def);
                 cout << endl;
                 Functions::print_tab_simbol(tab_simbol);
+                cout << endl;
+                Functions::print_tab_def(tab_def);
                 cout << endl;
             } 
             else if (passagem == 2) {
                 cout << "Passagem 2:\n" << endl;
+                // Functions::print_extend(tab_extend);
                 //cout << passagem_2;
-                // Functions::passagem2(arq_out, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count);
+                Functions::passagem2(arq_out, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend);
             }
             
         }

@@ -14,6 +14,18 @@ class Simbolo {
             return endereco;
         }
 
+        const bool& GetExterno() const {
+            return externo;
+        }
+
+        const bool& GetPublico() const {
+            return publico;
+        }
+
+        const bool& GetExiste() const {
+            return existe;
+        }
+
         std::string& SetRotulo() {
             return rotulo;
         }
@@ -22,9 +34,24 @@ class Simbolo {
             return endereco;
         }
 
+        bool& SetExterno() {
+            return externo;
+        }
+        
+        bool& SetPublico() {
+            return publico;
+        }
+
+        bool& SetExiste() {
+            return existe;
+        }
+
     private:
         std::string rotulo;
         int endereco;
+        bool externo;
+        bool publico;
+        bool existe = true;
 
 };
 
