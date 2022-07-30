@@ -243,4 +243,4 @@ Functions.o: sources/Functions.cpp
 # 	g++ -c sources/estados/Q103.cpp
 
 run:
-	./montador_rb -o files/testes/fat_mod_a.txt files/saidas/saida.txt
+	./montador_rb -o files/testes/mod_a.txt files/saidas/saida.txt

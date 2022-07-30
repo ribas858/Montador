@@ -125,10 +125,25 @@ void Functions::insere_tab_def (map<string, Definicao>& tab_def, string key, int
     }
 }
 
+void Functions::insere_tab_uso (map<string, Uso>& tab_uso, string key, int pos, int line) {
+
+    Uso uso;
+    uso.SetRotulo() = key;
+    uso.SetEndereco() = pos;
+    tab_uso.insert(pair<string, Uso> (to_string(pos), uso));
+}
+
 void Functions::print_tab_def (map<string, Definicao> tab_def) {
     for (auto d : tab_def) {
         // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
         cout << "Key: " << d.first << " -> " << d.second.GetEndereco() << endl;
+    }
+}
+
+void Functions::print_tab_uso (map<string, Uso> tab_uso) {
+    for (auto d : tab_uso) {
+        // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
+        cout << "Key: " << d.second.GetRotulo() << " -> " << d.second.GetEndereco() << endl;
     }
 }
 
@@ -497,7 +512,7 @@ bool Functions::rot_valido(string lexema, int cod) {
 void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema, map<string, Instrucao>& tab_inst,
     map<string, Diretiva>& tab_diret, map<string, DiretivaExtend>& tab_extend, int& line_count, string* forma_linha, vector<string>& linha,
         int& begin_line, bool& line_analise, int& estado, pair<int,int>& virgula, int& flag_v,
-        bool* section_t, bool* section_d, int& flag_sec_t, int& flag_sec_d) {
+        bool* section_t, bool* section_d, int& flag_sec_t, int& flag_sec_d, bool& flag_erros, bool& flag_ligador) {
     
     if (c == ' ' || c == '\n' || c == '\t') {
         int size = lexema.size();
@@ -505,8 +520,13 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
         if (size > 0) {
             if (busca_instrucao(tab_inst, tab_diret, lexema) || busca_extend(tab_extend, lexema)) {
 
-                if (!section_t[0] && !section_t[1]) {
-                    // cout << "Nao chegou na secao texto ainda " << lexema << endl;
+                // if (!section_t[0] && !section_t[1]) {
+                //     // cout << "Nao chegou na secao texto ainda " << lexema << endl;
+                // }
+
+                if (lexema == "BEGIN" || lexema == "END") {
+                    // cout <<"beg> " <<  lexema << endl;
+                    flag_ligador = true;
                 }
                
                 if ((section_t[0] && section_t[1]) && (!section_d[0] && !section_d[1]) && busca_2(tab_diret,lexema)) {
@@ -561,7 +581,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
             
             switch (estado) {
                 case 1:
-                    // cout << "Estado 1" << endl;
+                    cout << "Estado 1" << endl;
                     
                     if (lexema[size-1] == ':') {
                         if(rot_valido(lexema, 1) && size <= 99+1) {
@@ -604,7 +624,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                     break;
 
                 case 2:
-                    // cout << "Estado 2" << endl;
+                    cout << "Estado 2" << endl;
                     
                     if (forma_linha[0] == "nil") {
                         forma_linha[0] = "check";
@@ -618,7 +638,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                     break;
                 
                 case 3:
-                    // cout << "Estado 3" << endl;
+                    cout << "Estado 3" << endl;
                     
                     
                     if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, tab_extend, begin_line, 1).first == -1) {
@@ -711,14 +731,17 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                         }
                                     }
                                 } else {
-                                    if (rot_valido(lexema, 3) && size <= 99+1) {
-                                        // cout << "Rot valido" << endl;
-                                    } else {
-                                        cout << "erro Rot" << endl;
-                                        if (size > 99+1) {
-                                            Functions::print_errors(lexema, 8, line_count);
+                                    // cout << "mais " << lexema << endl;
+                                    if (lexema != "+") {
+                                        if (rot_valido(lexema, 3) && size <= 99+1) {
+                                            // cout << "Rot valido" << endl;
                                         } else {
-                                            Functions::print_errors(lexema, 6, line_count);
+                                            cout << "erro Rot" << endl;
+                                            if (size > 99+1) {
+                                                Functions::print_errors(lexema, 8, line_count);
+                                            } else {
+                                                Functions::print_errors(lexema, 6, line_count);
+                                            }
                                         }
                                     }
                                     linha.push_back(lexema);
@@ -964,9 +987,11 @@ void Functions::update_diretivas(map<string, string>& map_diret, map<string, Dir
                         flag_const = 1;
                     }
                 }
+                // cout << "word: " << word << " size: " << word.size() << endl;
+                diret += word + " ";
             }
-            // cout << "word: " << word << " size: " << word.size() << endl;
-            diret += word + " ";
+            
+            
             word.clear();
         } else {
             word += diret_aux[i];
@@ -980,7 +1005,10 @@ void Functions::update_diretivas(map<string, string>& map_diret, map<string, Dir
         flag_const = 0;
     }
 
-    diret += word + '\n';
+    if(!word.empty()) {
+        diret += word + '\n';
+    }
+    // cout << "diret: " << diret << endl;
 
     if (flag_ign == 1) {
         // cout << "Apagando.. c" << endl;
@@ -1021,7 +1049,7 @@ string Functions::GetNameFile(string src) {
 }
 
 void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-    vector<string>& linha, int& cont_posicao, int& line_count) {
+    vector<string>& linha, int& cont_posicao, int& line_count, bool& flag_erros) {
     
     int n_operandos = 0;
     int tam_instrucao = 0;
@@ -1030,6 +1058,7 @@ void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>&
     int achou_inst = 0;
 
     string rot;
+    string mais;
     int flag_pub = 0;
     
     for (auto i = 0; i < linha.size(); i++) {
@@ -1046,8 +1075,16 @@ void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>&
             achou_inst = 1;
         } else {
             if (achou_inst == 1) {
-                cont++;
-                // cout << "End. " << cont + cont_posicao << ": " << linha[i] << endl; 
+                if (linha[i] == "+") {
+                    mais = "+";
+                }
+                else if (!mais.empty()) {
+                    // cout << "not emp " << linha[i] << endl;
+                    mais.clear();
+                } else { 
+                    cont++;
+                    // cout << "End. " << cont + cont_posicao << ": " << linha[i] << endl; 
+                }
             } else {
                 // cout << "else: " << linha[i] << endl;
                 if (flag_pub == 1) {
@@ -1079,26 +1116,35 @@ void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>&
     // cout << "N_op: "<< n_operandos << " tam_inst: " << tam_instrucao << " tam diretiva: " << tam_diretiva << " cont: " << cont << endl;
 }
 
-void Functions::passagem2(char* arq_out, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-    string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend) {
-    cout << cont_posicao << endl;
+void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
+    string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso) {
+    
     int flag_const = 0;
-    string lexema, cod_obj;
+    string lexema;
     int libera_cont = 0;
     int cont = 0;
     int cont2 = 0;
+
+    int flag_mais = 0;
+    string mais;
+    int ini = 0;
+    int flag_i = 0;
 
     int inst_tam = 0;
     int diret_tam = 0;
     for (int i = 0; i < passagem2.size(); i++) {
         
         if (passagem2[i] == ' ' || passagem2[i] == '\n' || passagem2[i] == '\t') {
+            if (passagem2[i] == '\n') {
+                ini = i;
+            }
             if(lexema.size() > 0) {
                 //if (lexema != "SECAO" && lexema != "TEXTO" && lexema != "DADOS") {
                    
                     if(!busca_instrucao(tab_inst, tab_diret, lexema) && !busca_extend(tab_extend, lexema)) {
-                        //cout <<"DENTRO IF " << lexema << endl;
+                        
                         if (lexema[lexema.size()-1] != ':' && libera_cont == 1) {
+                            
                             if (libera_cont == 1 && flag_const == 0) {
                                 cont2++;
                                 cont = cont_posicao + cont2;
@@ -1113,19 +1159,43 @@ void Functions::passagem2(char* arq_out, map<string, Simbolo>& tab_simbol, map<s
                             if (s.GetExiste()) {
                                     
                                     if (s.GetExterno()) {
-                                        cout << "End symbol: " << lexema << " " <<  cont << endl;
+                                        cout << "End symbol: " << lexema << " " <<  cont << " mais: " << mais << " flag mais " << flag_mais << endl;
+                                        insere_tab_uso(tab_uso, lexema, cont, line_count);
+                                        if (!mais.empty()) {
+                                            int m = stoi(mais);
+                                            mais.clear();
+                                            m += s.GetEndereco();
+                                            cod_obj += to_string(m) + " ";
+                                        } else {
+                                            cout <<"s exist: " << s.GetEndereco() << endl;
+                                            cod_obj += to_string(s.GetEndereco()) + " ";
+                                        }
+                                    } else {
+                                        cod_obj += to_string(s.GetEndereco()) + " ";
                                     }
-                                    // cout <<"s exist: " << lexema << endl;
-                                    cod_obj += to_string(s.GetEndereco()) + " ";
                             } else {
-                                if (flag_const == 1) {
-                                    if(isAllDigit(lexema)) {
-                                        // cout << "digit: "<< lexema << endl;
-                                        cod_obj += lexema + " ";
+                                cout <<"DENTRO IF " << lexema << endl;
+                                if (lexema == "+") {
+                                    flag_mais = 1;
+                                    if (flag_i == 0) {
+                                        flag_i = 1;
+                                        passagem2[i-1] = ' ';
+                                        mais = passagem2[i+1];
+                                        cout << "i=========== " << passagem2[ini] << "|" << endl;
+                                        i = ini;
                                     }
-
                                 } else {
-                                    print_errors(lexema, 16, line_count);
+                                        if (flag_const == 1) {
+                                            
+                                            if(isAllDigit(lexema)) {
+                                                cout << "digit: "<< lexema << endl;
+                                                cod_obj += lexema + " ";
+                                            }
+
+                                        } else {
+                                            print_errors(lexema, 16, line_count);
+                                        }
+                                    
                                 }
                             }
                         }
@@ -1136,7 +1206,7 @@ void Functions::passagem2(char* arq_out, map<string, Simbolo>& tab_simbol, map<s
                         }
                         
                         if (busca_1(tab_inst, lexema)) {
-                            // cout << "lexema1: " << lexema << endl;
+                            cout << "lexema1: " << lexema << endl;
                             auto inst = retur_inst(tab_inst, lexema);
                             inst_tam = inst.GetTamanho();
                             cod_obj += to_string(inst.GetCodigo()) + " ";
@@ -1176,9 +1246,6 @@ void Functions::passagem2(char* arq_out, map<string, Simbolo>& tab_simbol, map<s
     }
 
     cout << cod_obj << endl;
-    ofstream arq_saida (arq_out);
-    arq_saida << cod_obj;
-    arq_saida.close();
 }
 
 bool Functions::isAllDigit(string dig) {

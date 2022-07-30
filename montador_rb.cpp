@@ -40,7 +40,12 @@ int main (int argc, char **argv) {
 
     map<string, DiretivaExtend> tab_extend;  // Map tabela extendida de diretivas
 
+    bool flag_erros = false;
+    bool flag_ligador = false;
+    
+
     map<string, Definicao> tab_def;  // Map tabela de definicao
+    map<string, Uso> tab_uso;  // Map tabela de uso
 
     Functions::ler_tab_instr(tab_inst);     // Tabela de instruções
     Functions::ler_tab_diret(tab_diret);   // Tabela de diretivas
@@ -68,16 +73,16 @@ int main (int argc, char **argv) {
                 for (int i=0; i<file_string.size(); i++) {
                     if (file_string[i] == ';') {
                         ign_coment = 1;
-                    } 
+                    }
                     else if (file_string[i] == '\n') {
                         ign_coment = 0;
                     }
 
                     if (ign_coment == 0) {
                         if (file_string[i] == '\n' || file_string[i] == '\t') {
-                            // cout << "diret: " << diret << endl;
+                            //cout << "diret: " << diret << endl;
                             Functions::update_diretivas(map_diret, tab_diret, diret, flag_ign);
-
+                            
                             pre_file_string += diret;
 
                             diret.clear();
@@ -136,7 +141,7 @@ int main (int argc, char **argv) {
 
                     arq_entrada.get(c);
                     Functions::Analise_rot_instr(arq_entrada, c, lexema, tab_inst, tab_diret, tab_extend, line_count, forma_linha, linha, begin_line, line_analise, estado, virg, flag_v,
-                                                    section_t, section_d, flag_sec_t, flag_sec_d);
+                                                    section_t, section_d, flag_sec_t, flag_sec_d, flag_erros, flag_ligador);
             
 
                     if (c == '\n') {
@@ -153,7 +158,7 @@ int main (int argc, char **argv) {
                             }
                             cout << endl;
 
-                            Functions::passagem1(tab_def, tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count);
+                            Functions::passagem1(tab_def, tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count, flag_erros);
 
                             // cout << "Contador de posicao: " << cont_posicao << endl;
                             
@@ -182,9 +187,30 @@ int main (int argc, char **argv) {
             } 
             else if (passagem == 2) {
                 cout << "Passagem 2:\n" << endl;
+                string cod_obj;
                 // Functions::print_extend(tab_extend);
                 //cout << passagem_2;
-                Functions::passagem2(arq_out, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend);
+                Functions::passagem2(cod_obj, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend, tab_uso);
+                cout << endl;
+                cout << "tabela de uso : " << endl;
+                Functions::print_tab_uso(tab_uso);
+                cout << endl;
+
+                ofstream arq_saida (arq_out);
+                if (flag_ligador) {
+                    arq_saida << "TABELA USO" << endl;
+                    for (auto u : tab_uso) {
+                        arq_saida << u.second.GetRotulo() + " " + to_string(u.second.SetEndereco()) + "\n";
+                    }
+                    arq_saida << endl;
+                    arq_saida << "TABELA DEF" << endl;
+                    for (auto d : tab_def) {
+                        arq_saida << d.second.GetRotulo() + " " + to_string(d.second.SetEndereco()) + "\n";
+                    }
+                    arq_saida << endl;
+                }
+                arq_saida << cod_obj;
+                arq_saida.close();
             }
             
         }
