@@ -133,6 +133,13 @@ void Functions::insere_tab_uso (map<string, Uso>& tab_uso, string key, int pos, 
     tab_uso.insert(pair<string, Uso> (to_string(pos), uso));
 }
 
+void Functions::insere_tab_plus (map<string, Plus>& tab_plus, string key, int pos) {
+    Plus p;
+    p.SetRotulo() = to_string(pos);
+    p.SetEndereco() = stoi(key);
+    tab_plus.insert(pair<string, Plus> (key, p));
+}
+
 void Functions::print_tab_def (map<string, Definicao> tab_def) {
     for (auto d : tab_def) {
         // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
@@ -144,6 +151,26 @@ void Functions::print_tab_uso (map<string, Uso> tab_uso) {
     for (auto d : tab_uso) {
         // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
         cout << "Key: " << d.second.GetRotulo() << " -> " << d.second.GetEndereco() << endl;
+    }
+}
+
+void Functions::print_tab_plus (map<string, Plus> tab_plus) {
+    for (auto p : tab_plus) {
+        // cout << "Key: " << p.first << " -> " << p.seconp.GetRotulo() << " " << p.seconp.GetEnpereco() << enpl;
+        cout << "Key: " << p.second.GetRotulo() << " -> " << p.second.GetEndereco() << endl;
+    }
+}
+
+Plus Functions::return_plus (map<string,Plus> tab_plus, string key) {
+    Plus p;
+    p.SetExiste() = false;
+    map<string, Plus>::iterator it_tab_plus;
+
+    it_tab_plus = tab_plus.find(key);
+    if ( it_tab_plus != tab_plus.end()) {
+        return it_tab_plus->second;
+    } else {
+        return p;
     }
 }
 
@@ -384,7 +411,7 @@ void Functions::print_errors(string lexema, int cod, int line_count) {
         cout << "=============================================================================\n" << endl;
         break;
     case 12:
-        name = GetNameFile(lexema);
+        name = GetNameFile(lexema, 0);
         cout << "Arquivo de Entrada Inexistente:: [" << name << "] \n::Ou Diretório [" << lexema << "] Inválido\n" << endl;
         break;
     case 13:
@@ -581,7 +608,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
             
             switch (estado) {
                 case 1:
-                    cout << "Estado 1" << endl;
+                    // cout << "Estado 1" << endl;
                     
                     if (lexema[size-1] == ':') {
                         if(rot_valido(lexema, 1) && size <= 99+1) {
@@ -624,7 +651,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                     break;
 
                 case 2:
-                    cout << "Estado 2" << endl;
+                    // cout << "Estado 2" << endl;
                     
                     if (forma_linha[0] == "nil") {
                         forma_linha[0] = "check";
@@ -638,7 +665,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                     break;
                 
                 case 3:
-                    cout << "Estado 3" << endl;
+                    // cout << "Estado 3" << endl;
                     
                     
                     if (forma_linha[1] == "nil" && has_line_instruction(arq_entrada, tab_inst, tab_diret, tab_extend, begin_line, 1).first == -1) {
@@ -1036,20 +1063,33 @@ void Functions::update_diretivas(map<string, string>& map_diret, map<string, Dir
     }
 }
 
-string Functions::GetNameFile(string src) {
+string Functions::GetNameFile(string src, int cod) {
     string name;
-    for (int i=src.size(); i>-1; i--) {
-        if (src[i] == '/') {
-            break;
+    if (cod == 1) {
+        // cout << "src " << src << endl;
+        string name2;
+        for (int i=0; i<src.size(); i++) {
+            if (src[i] == '.') {
+                break;
+            }
+            name2 += src[i];
         }
-        name += src[i];
+        // cout << "name2 " << name2 << endl;
+        name = name2;
+    } else {
+        for (int i=src.size(); i>-1; i--) {
+            if (src[i] == '/') {
+                break;
+            }
+            name += src[i];
+        }
+        reverse(name.begin(), name.end());
     }
-    reverse(name.begin(), name.end());
     return name;
 }
 
 void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-    vector<string>& linha, int& cont_posicao, int& line_count, bool& flag_erros) {
+    vector<string>& linha, int& cont_posicao, int& line_count, bool& flag_erros, map<string, Plus>& tab_plus) {
     
     int n_operandos = 0;
     int tam_instrucao = 0;
@@ -1075,13 +1115,15 @@ void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>&
             achou_inst = 1;
         } else {
             if (achou_inst == 1) {
+
                 if (linha[i] == "+") {
                     mais = "+";
                 }
                 else if (!mais.empty()) {
-                    // cout << "not emp " << linha[i] << endl;
+                    // cout << "not emp " << linha[i] << " Ed. " << cont + cont_posicao << endl;
+                    insere_tab_plus(tab_plus, to_string(cont+cont_posicao), stoi(linha[i]));
                     mais.clear();
-                } else { 
+                } else {
                     cont++;
                     // cout << "End. " << cont + cont_posicao << ": " << linha[i] << endl; 
                 }
@@ -1103,6 +1145,7 @@ void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>&
                     string aux = linha[i];
                     aux.pop_back();
                     rot = aux;
+                    // cout << "rot aux " << rot << endl;
                     insere_tab_simbol(tab_simbol, aux, cont_posicao, line_count);
                 }
             }
@@ -1117,7 +1160,7 @@ void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>&
 }
 
 void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-    string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso) {
+    string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso, map<string, Plus>& tab_plus) {
     
     int flag_const = 0;
     string lexema;
@@ -1126,18 +1169,17 @@ void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map
     int cont2 = 0;
 
     int flag_mais = 0;
-    string mais;
-    int ini = 0;
-    int flag_i = 0;
+    int flag_space = 0;
+    // string mais;
+    // int ini = 0;
+    // int flag_i = 0;
 
     int inst_tam = 0;
     int diret_tam = 0;
     for (int i = 0; i < passagem2.size(); i++) {
         
         if (passagem2[i] == ' ' || passagem2[i] == '\n' || passagem2[i] == '\t') {
-            if (passagem2[i] == '\n') {
-                ini = i;
-            }
+            
             if(lexema.size() > 0) {
                 //if (lexema != "SECAO" && lexema != "TEXTO" && lexema != "DADOS") {
                    
@@ -1159,41 +1201,46 @@ void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map
                             if (s.GetExiste()) {
                                     
                                     if (s.GetExterno()) {
-                                        cout << "End symbol: " << lexema << " " <<  cont << " mais: " << mais << " flag mais " << flag_mais << endl;
+                                        // cout << "End symbol: " << lexema << " " <<  cont << endl;
                                         insere_tab_uso(tab_uso, lexema, cont, line_count);
-                                        if (!mais.empty()) {
-                                            int m = stoi(mais);
-                                            mais.clear();
-                                            m += s.GetEndereco();
-                                            cod_obj += to_string(m) + " ";
-                                        } else {
-                                            cout <<"s exist: " << s.GetEndereco() << endl;
-                                            cod_obj += to_string(s.GetEndereco()) + " ";
-                                        }
+                                    }
+
+                                    Plus p = return_plus(tab_plus, to_string(cont));
+                                    if(p.GetExiste()) {
+                                        // cout << "p: " << p.GetRotulo() << endl;
+                                        int m = stoi(p.GetRotulo()) + s.GetEndereco();
+                                        cod_obj += to_string(m) + " ";
+                                        // cout << "================= isere plus " << m <<  " s end: " << s.GetEndereco() << " -> " << cod_obj << endl; 
                                     } else {
+                                        // cout <<"s exist: " << s.GetEndereco() << endl;
                                         cod_obj += to_string(s.GetEndereco()) + " ";
+                                        // cout << "================= isere " << s.GetRotulo() << " -> " << cod_obj << endl;
                                     }
                             } else {
-                                cout <<"DENTRO IF " << lexema << endl;
+                                // cout <<"DENTRO IF " << lexema << "flag sp " << flag_space << endl;
                                 if (lexema == "+") {
                                     flag_mais = 1;
-                                    if (flag_i == 0) {
-                                        flag_i = 1;
-                                        passagem2[i-1] = ' ';
-                                        mais = passagem2[i+1];
-                                        cout << "i=========== " << passagem2[ini] << "|" << endl;
-                                        i = ini;
-                                    }
                                 } else {
-                                        if (flag_const == 1) {
-                                            
-                                            if(isAllDigit(lexema)) {
-                                                cout << "digit: "<< lexema << endl;
-                                                cod_obj += lexema + " ";
+                                        if (flag_const == 1 || flag_mais == 1) {
+                                            flag_mais = 0;
+                                            if (flag_const == 1) {
+                                                flag_const = 0;
+                                                if(isAllDigit(lexema)) {
+                                                    // cout << "digit: "<< lexema << endl;
+                                                    cod_obj += lexema + " ";
+                                                }
                                             }
-
                                         } else {
-                                            print_errors(lexema, 16, line_count);
+                                            if (flag_space == 1) {
+                                                int s = stoi(lexema);
+                                                for(int i=0; i<s; i++) {
+                                                    string z = "0";
+                                                    cod_obj += z + ' ';
+                                                }
+                                                flag_space = 0;
+                                            } else {
+                                                print_errors(lexema, 16, line_count);
+                                            }
                                         }
                                     
                                 }
@@ -1206,7 +1253,7 @@ void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map
                         }
                         
                         if (busca_1(tab_inst, lexema)) {
-                            cout << "lexema1: " << lexema << endl;
+                            // cout << "lexema1: " << lexema << endl;
                             auto inst = retur_inst(tab_inst, lexema);
                             inst_tam = inst.GetTamanho();
                             cod_obj += to_string(inst.GetCodigo()) + " ";
@@ -1216,7 +1263,9 @@ void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map
                             auto diret = retur_diret(tab_diret, lexema);
                             diret_tam = diret.GetTamanho();
                             if (lexema == "SPACE") {
-                                cod_obj += to_string(diret.GetOperando()) + " ";
+                                // cout << "op space " << diret.GetOperando() << endl;
+                                // cod_obj += to_string(diret.GetOperando()) + " ";
+                                flag_space = 1;
                             }
                             else if (lexema == "CONST") {
                                 flag_const = 1;

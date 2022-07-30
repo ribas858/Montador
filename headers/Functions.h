@@ -77,13 +77,13 @@ class Functions {
 
         static void update_diretivas(map<string, string>& map_diret, map<string, Diretiva>& tab_diret, string& diret, int& flag_ign);
 
-        static string GetNameFile(string src);
+        static string GetNameFile(string src, int cod);
 
         static void passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-            vector<string>& linha, int& cont_posicao, int& line_count, bool& flag_erros);
+            vector<string>& linha, int& cont_posicao, int& line_count, bool& flag_erros, map<string, Plus>& tab_plus);
 
         static void passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-            string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso);
+            string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso, map<string, Plus>& tab_plus);
 
         static bool isAllDigit(string dig);
 
@@ -96,6 +96,12 @@ class Functions {
         static void insere_tab_uso(map<string, Uso>& tab_uso, string key, int pos, int line);
 
         static void print_tab_uso (map<string, Uso> tab_uso);
+
+        static void insere_tab_plus (map<string, Plus>& tab_plus, string key, int pos);
+
+        static void print_tab_plus (map<string, Plus> tab_plus);
+
+        static Plus return_plus (map<string,Plus> tab_plus, string key);
 
 };
 

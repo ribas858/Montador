@@ -47,11 +47,13 @@ int main (int argc, char **argv) {
     map<string, Definicao> tab_def;  // Map tabela de definicao
     map<string, Uso> tab_uso;  // Map tabela de uso
 
+    map<string, Plus> tab_plus;  // Tabela de Soma
+
     Functions::ler_tab_instr(tab_inst);     // Tabela de instruções
     Functions::ler_tab_diret(tab_diret);   // Tabela de diretivas
     Functions::ler_tab_extend(tab_extend);   // Tabela de extendida
    
-    name_file = Functions::GetNameFile(string(arq_in));
+    name_file = Functions::GetNameFile(string(arq_in), 0);
     
     
     file_string =  Functions::up_file(arq_in);
@@ -158,7 +160,7 @@ int main (int argc, char **argv) {
                             }
                             cout << endl;
 
-                            Functions::passagem1(tab_def, tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count, flag_erros);
+                            Functions::passagem1(tab_def, tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count, flag_erros, tab_plus);
 
                             // cout << "Contador de posicao: " << cont_posicao << endl;
                             
@@ -184,20 +186,26 @@ int main (int argc, char **argv) {
                 cout << endl;
                 Functions::print_tab_def(tab_def);
                 cout << endl;
+                Functions::print_tab_plus(tab_plus);
+                cout << endl;
             } 
             else if (passagem == 2) {
                 cout << "Passagem 2:\n" << endl;
                 string cod_obj;
                 // Functions::print_extend(tab_extend);
-                //cout << passagem_2;
-                Functions::passagem2(cod_obj, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend, tab_uso);
+                // cout << passagem_2;
+                Functions::passagem2(cod_obj, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend, tab_uso, tab_plus);
                 cout << endl;
                 cout << "tabela de uso : " << endl;
                 Functions::print_tab_uso(tab_uso);
                 cout << endl;
 
-                ofstream arq_saida (arq_out);
+                
+
+                
                 if (flag_ligador) {
+                    string name_saida = Functions::GetNameFile(string(arq_out), 1);  
+                    ofstream arq_saida(name_saida + "_" + name_file);
                     arq_saida << "TABELA USO" << endl;
                     for (auto u : tab_uso) {
                         arq_saida << u.second.GetRotulo() + " " + to_string(u.second.SetEndereco()) + "\n";
@@ -208,9 +216,14 @@ int main (int argc, char **argv) {
                         arq_saida << d.second.GetRotulo() + " " + to_string(d.second.SetEndereco()) + "\n";
                     }
                     arq_saida << endl;
+                    arq_saida << cod_obj;
+                    arq_saida.close();
+                } else {
+                    ofstream arq_saida (arq_out);
+                    arq_saida << cod_obj;
+                    arq_saida.close();
                 }
-                arq_saida << cod_obj;
-                arq_saida.close();
+                
             }
             
         }
