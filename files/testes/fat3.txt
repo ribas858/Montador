@@ -8,6 +8,7 @@ MULT N
 STORE N
 LOAD AUX
 JmP FAT
+copy n,  one
 FIM: OUTPUT N
 STOP
 secao dados

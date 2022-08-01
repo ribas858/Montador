@@ -175,9 +175,20 @@ Plus Functions::return_plus (map<string,Plus> tab_plus, string key) {
 }
 
 void Functions::print_tab_simbol (map<string,Simbolo> tab_simbol) {
+    string ext, pub;
     for (auto d : tab_simbol) {
         // cout << "Key: " << d.first << " -> " << d.second.GetRotulo() << " " << d.second.GetEndereco() << endl;
-        cout << "Key: " << d.first << " -> " << d.second.GetEndereco() << " | Ext-> " << d.second.GetExterno() << " | Pub-> " << d.second.GetPublico() << endl;
+        if (d.second.GetExterno()) {
+            ext = "SIM";
+        } else {
+            ext = "NÃO";
+        }
+        if (d.second.GetPublico()) {
+            pub = "SIM";
+        } else {
+            pub = "NÃO";
+        }
+        cout << "Key: " << d.first << " -> " << d.second.GetEndereco() << " | Ext-> " << ext << " | Pub-> " << pub << endl;
     }
 }
 
@@ -539,7 +550,7 @@ bool Functions::rot_valido(string lexema, int cod) {
 void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema, map<string, Instrucao>& tab_inst,
     map<string, Diretiva>& tab_diret, map<string, DiretivaExtend>& tab_extend, int& line_count, string* forma_linha, vector<string>& linha,
         int& begin_line, bool& line_analise, int& estado, pair<int,int>& virgula, int& flag_v,
-        bool* section_t, bool* section_d, int& flag_sec_t, int& flag_sec_d, bool& flag_erros, bool& flag_ligador) {
+        bool* section_t, bool* section_d, int& flag_sec_t, int& flag_sec_d, int& flag_erros, bool& flag_ligador) {
     
     if (c == ' ' || c == '\n' || c == '\t') {
         int size = lexema.size();
@@ -558,12 +569,14 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                
                 if ((section_t[0] && section_t[1]) && (!section_d[0] && !section_d[1]) && busca_2(tab_diret,lexema)) {
                     Functions::print_errors(lexema, 17, line_count);
+                    flag_erros++;
                 } else {
                     // cout << "lex: " << lexema << " busca2: " << busca_2(tab_diret,lexema) << " flag_d: " << flag_sec_d << endl;
                     // cout << "section t0: " << section_t[0] << " section t1: " << section_t[1] << endl;
                     // cout << "section d0: " << section_d[0] << " section d1: " << section_d[1] << endl;
                     if ( (section_t[0] && section_t[1]) && (!section_d[0] || !section_d[1]) && busca_2(tab_diret,lexema) && flag_sec_d == 0) {
                         Functions::print_errors(lexema, 10, line_count);
+                        flag_erros++;
                         flag_sec_d = 1;
                         // cout << "falta secao dados" << endl;
                     }
@@ -571,9 +584,11 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
 
                 if ((section_d[0] && section_d[1]) && busca_1(tab_inst,lexema)) {
                     Functions::print_errors(lexema, 18, line_count);
+                    flag_erros++;
                 } else {
                     if ((!section_t[0] || !section_t[1]) && busca_1(tab_inst,lexema) && flag_sec_t == 0) {
                         Functions::print_errors(lexema, 9, line_count);
+                        flag_erros++;
                         flag_sec_t = 1;
                         // cout << "falta secao texto" << endl;
                     }
@@ -619,9 +634,11 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                             linha.push_back("[rotulo]");
                             if (size > 99+1) {
                                 Functions::print_errors(lexema, 8, line_count);
+                                flag_erros++;
                             } else {
                                 Functions::print_errors(lexema, 1, line_count);
                                 Functions::print_errors(lexema, 7, line_count);
+                                flag_erros++;
                             }
                         }
                         
@@ -631,12 +648,14 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                             linha.push_back("[inst]");
                             // cout << lexema << endl;
                             Functions::print_errors(lexema, 4, line_count);
+                            flag_erros++;
                         } else {
                             if (forma_linha[1] != "erro") {
                                 if (forma_linha[0] == "nil") {
                                     forma_linha[0] = "erro";
                                     linha.push_back("[rotulo]");
                                     Functions::print_errors(lexema, 1, line_count);
+                                    flag_erros++;
                                 }
                             } else {
                                 forma_linha[0] = "check";
@@ -673,6 +692,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                             linha.push_back("[inst]");
                             // cout << lexema << endl;
                             Functions::print_errors(lexema, 4, line_count);
+                            flag_erros++;
                             
                         
                     } else {
@@ -681,15 +701,18 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                 // linha.push_back(lexema);
                                 if (size == 1) {
                                     Functions::print_errors(lexema, 2, line_count);
+                                    flag_erros++;
                                 } else {
                                     Functions::print_errors(lexema, 3, line_count);
+                                    flag_erros++;
                                 }
                             } else {
                                 linha.push_back("[rotulo]");
                                 Functions::print_errors(lexema, 1, line_count);
+                                flag_erros++;
                                 if (forma_linha[0] == "erro" || forma_linha[0] == "rot") {
-                                    
                                     Functions::print_errors(lexema, 2, line_count);
+                                    flag_erros++;
                                 }
                                 forma_linha[0] = "erro";
                             }
@@ -697,6 +720,7 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                             if (lexema[size-1] == ':' ){
                                 linha.push_back(lexema);
                                 Functions::print_errors(lexema, 5, line_count);
+                                flag_erros++;
                             } else {
                                 
                                 if (line_analise) {
@@ -715,8 +739,10 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                             // cout << "erro Rot" << endl;
                                             if (size > 99+1) {
                                                 Functions::print_errors(lexema, 8, line_count);
+                                                flag_erros++;
                                             } else {
                                                 Functions::print_errors(lexema, 6, line_count);
+                                                flag_erros++;
                                             }
                                         }
                                         if (virgula.second == 1) {
@@ -734,8 +760,10 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                                 // cout << "erro Rot" << endl;
                                                 if (size > 99+1) {
                                                     Functions::print_errors(lexema, 8, line_count);
+                                                    flag_erros++;
                                                 } else {
                                                     Functions::print_errors(lexema, 6, line_count);
+                                                    flag_erros++;
                                                 }
                                             }
                                         } else {
@@ -746,8 +774,10 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                                 // cout << "erro Rot" << endl;
                                                 if (size > 99+1) {
                                                     Functions::print_errors(lexema, 8, line_count);
+                                                    flag_erros++;
                                                 } else {
                                                     Functions::print_errors(lexema, 6, line_count);
+                                                    flag_erros++;
                                                 }
                                             }
                                         }
@@ -766,8 +796,10 @@ void Functions::Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema
                                             cout << "erro Rot" << endl;
                                             if (size > 99+1) {
                                                 Functions::print_errors(lexema, 8, line_count);
+                                                flag_erros++;
                                             } else {
                                                 Functions::print_errors(lexema, 6, line_count);
+                                                flag_erros++;
                                             }
                                         }
                                     }
@@ -1024,6 +1056,13 @@ void Functions::update_diretivas(map<string, string>& map_diret, map<string, Dir
             word += diret_aux[i];
         }
     }
+
+    
+
+    
+
+    
+
     if (flag_const == 1) {
         auto it_diret = map_diret.find(word);
         if ( it_diret != map_diret.end()) {
@@ -1032,9 +1071,16 @@ void Functions::update_diretivas(map<string, string>& map_diret, map<string, Dir
         flag_const = 0;
     }
 
-    if(!word.empty()) {
-        diret += word + '\n';
+    if (word == "SPACE") {
+        // cout << "space meu parceiro" << endl;
+        diret += word + ' ' + '1' + '\n';
+    } else {
+        if(!word.empty()) {
+            diret += word + '\n';
+        }
     }
+
+    
     // cout << "diret: " << diret << endl;
 
     if (flag_ign == 1) {
@@ -1089,7 +1135,7 @@ string Functions::GetNameFile(string src, int cod) {
 }
 
 void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-    vector<string>& linha, int& cont_posicao, int& line_count, bool& flag_erros, map<string, Plus>& tab_plus) {
+    vector<string>& linha, int& cont_posicao, int& line_count, int& flag_erros, map<string, Plus>& tab_plus) {
     
     int n_operandos = 0;
     int tam_instrucao = 0;
@@ -1154,13 +1200,15 @@ void Functions::passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>&
     }
     if (cont != n_operandos) {
         print_errors((to_string(cont) + "_" + to_string(n_operandos)), 15, line_count);
+        flag_erros++;
     }
     cont_posicao += tam_instrucao + tam_diretiva;
     // cout << "N_op: "<< n_operandos << " tam_inst: " << tam_instrucao << " tam diretiva: " << tam_diretiva << " cont: " << cont << endl;
 }
 
 void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-    string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso, map<string, Plus>& tab_plus) {
+    string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso, map<string, Plus>& tab_plus,
+    int& flag_erros) {
     
     int flag_const = 0;
     string lexema;
@@ -1233,6 +1281,7 @@ void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map
                                         } else {
                                             if (flag_space == 1) {
                                                 int s = stoi(lexema);
+                                                // cout << "lexema space " << lexema << endl;
                                                 for(int i=0; i<s; i++) {
                                                     string z = "0";
                                                     cod_obj += z + ' ';
@@ -1240,6 +1289,7 @@ void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map
                                                 flag_space = 0;
                                             } else {
                                                 print_errors(lexema, 16, line_count);
+                                                flag_erros++;
                                             }
                                         }
                                     
@@ -1293,8 +1343,6 @@ void Functions::passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map
         }
         
     }
-
-    cout << cod_obj << endl;
 }
 
 bool Functions::isAllDigit(string dig) {

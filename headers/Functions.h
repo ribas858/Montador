@@ -63,7 +63,7 @@ class Functions {
         static void Analise_rot_instr(ifstream& arq_entrada, char& c, string& lexema, map<string, Instrucao>& tab_inst,
             map<string, Diretiva>& tab_diret, map<string, DiretivaExtend>& tab_extend, int& line_count, string* forma_linha, vector<string>& linha,
             int& begin_line, bool& line_analise, int& estado, pair<int,int>& virgula, int& flag_v,
-            bool* section_t, bool* section_d, int& flag_sec_t, int& flag_sec_d, bool& flag_erros, bool& flag_ligador);
+            bool* section_t, bool* section_d, int& flag_sec_t, int& flag_sec_d, int& flag_erros, bool& flag_ligador);
 
         static bool duplicate_vector(vector<string> v, string key);
 
@@ -80,10 +80,11 @@ class Functions {
         static string GetNameFile(string src, int cod);
 
         static void passagem1(map<string, Definicao>& tab_def, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-            vector<string>& linha, int& cont_posicao, int& line_count, bool& flag_erros, map<string, Plus>& tab_plus);
+            vector<string>& linha, int& cont_posicao, int& line_count, int& flag_erros, map<string, Plus>& tab_plus);
 
         static void passagem2(string& cod_obj, map<string, Simbolo>& tab_simbol, map<string,Instrucao>& tab_inst, map<string,Diretiva>& tab_diret,
-            string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso, map<string, Plus>& tab_plus);
+            string& passagem2, int& cont_posicao, int& line_count, map<string, DiretivaExtend>& tab_extend, map<string, Uso>& tab_uso, map<string, Plus>& tab_plus,
+            int& flag_erros);
 
         static bool isAllDigit(string dig);
 

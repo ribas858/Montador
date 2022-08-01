@@ -40,7 +40,7 @@ int main (int argc, char **argv) {
 
     map<string, DiretivaExtend> tab_extend;  // Map tabela extendida de diretivas
 
-    bool flag_erros = false;
+    int flag_erros = 0;
     bool flag_ligador = false;
     
 
@@ -61,9 +61,9 @@ int main (int argc, char **argv) {
 
     if(!file_string.empty() && NUM_PASS > 0) {
         for (int passagem = 0; passagem < NUM_PASS; passagem++) {
-            cout << "p: " << passagem <<endl;
+            // cout << "p: " << passagem <<endl;
             if (passagem == 0) {
-                cout << "Passagem 0:" << endl;
+                cout << "PASSAGEM 0 ===================================================================\n" << endl;
                 
                 char b;
                 string diret;
@@ -104,7 +104,7 @@ int main (int argc, char **argv) {
                 arq_pre.close();
             }
             else if (passagem == 1) {
-                cout << "Passagem 1:\n" << endl;
+                cout << "PASSAGEM 1 ===================================================================\n" << endl;
 
                 
 
@@ -182,46 +182,59 @@ int main (int argc, char **argv) {
                 arq_entrada.close();
                 Functions::public_simbol(tab_simbol, tab_def);
                 cout << endl;
+                cout << "Tabela de Símbolos : " << endl;
                 Functions::print_tab_simbol(tab_simbol);
                 cout << endl;
-                Functions::print_tab_def(tab_def);
-                cout << endl;
-                Functions::print_tab_plus(tab_plus);
-                cout << endl;
+                
+                if (flag_ligador) {
+                    cout << "Tabela de Definições : " << endl;
+                    Functions::print_tab_def(tab_def);
+                    cout << endl;
+                }
+                // Functions::print_tab_plus(tab_plus);
+                // cout << endl;
             } 
             else if (passagem == 2) {
-                cout << "Passagem 2:\n" << endl;
+                cout << "PASSAGEM 2 ===================================================================\n" << endl;
                 string cod_obj;
                 // Functions::print_extend(tab_extend);
                 // cout << passagem_2;
-                Functions::passagem2(cod_obj, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend, tab_uso, tab_plus);
-                cout << endl;
-                cout << "tabela de uso : " << endl;
-                Functions::print_tab_uso(tab_uso);
-                cout << endl;
-
+                Functions::passagem2(cod_obj, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend, tab_uso, tab_plus, flag_erros);
                 
-
                 
-                if (flag_ligador) {
-                    string name_saida = Functions::GetNameFile(string(arq_out), 1);  
-                    ofstream arq_saida(name_saida + "_" + name_file);
-                    arq_saida << "TABELA USO" << endl;
-                    for (auto u : tab_uso) {
-                        arq_saida << u.second.GetRotulo() + " " + to_string(u.second.SetEndereco()) + "\n";
+                if (flag_erros == 0) {
+                    if (flag_ligador) {
+                        cout << "Tabela de Uso : " << endl;
+                        Functions::print_tab_uso(tab_uso);
+                        cout << endl;
+                        cout << "Tabela de Definições : " << endl;
+                        Functions::print_tab_def(tab_def);
+                        cout << endl;
+                        cout << cod_obj << endl;
+
+                        string name_saida = Functions::GetNameFile(string(arq_out), 1);  
+                        ofstream arq_saida(name_saida + "_" + name_file);
+                        arq_saida << "TABELA USO" << endl;
+                        for (auto u : tab_uso) {
+                            arq_saida << u.second.GetRotulo() + " " + to_string(u.second.SetEndereco()) + "\n";
+                        }
+                        arq_saida << endl;
+                        arq_saida << "TABELA DEF" << endl;
+                        for (auto d : tab_def) {
+                            arq_saida << d.second.GetRotulo() + " " + to_string(d.second.SetEndereco()) + "\n";
+                        }
+                        arq_saida << endl;
+                        arq_saida << cod_obj;
+                        arq_saida.close();
+                    } else {
+                        cout << cod_obj << endl;
+                        ofstream arq_saida (arq_out);
+                        arq_saida << cod_obj;
+                        arq_saida.close();
                     }
-                    arq_saida << endl;
-                    arq_saida << "TABELA DEF" << endl;
-                    for (auto d : tab_def) {
-                        arq_saida << d.second.GetRotulo() + " " + to_string(d.second.SetEndereco()) + "\n";
-                    }
-                    arq_saida << endl;
-                    arq_saida << cod_obj;
-                    arq_saida.close();
                 } else {
-                    ofstream arq_saida (arq_out);
-                    arq_saida << cod_obj;
-                    arq_saida.close();
+                    cout << "O Codigo Objeto Não Foi Gerado. Corrija os Erros e Tente Novamente!" << endl;
+                    cout << "FORAM ENCONTRADOS [" << flag_erros << "] ERROS ESPECIFICADOS ACIMA." << endl << endl;
                 }
                 
             }
