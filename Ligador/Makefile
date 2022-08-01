@@ -24,4 +24,4 @@ Functions.o: sources/Functions.cpp
 
 
 run:
-	./ligador_rb files/saidas/saida_fat_mod_a.txt files/saidas/saida_fat_mod_b.txt
+	./ligador_rb files/saidas/saida_meu_fat_a.txt files/saidas/saida_meu_fat_b.txt

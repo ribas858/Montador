@@ -1500,7 +1500,6 @@ void Functions::remove_w(string& a, string key) {
             cout << i << endl;
             break;
         }
-        //a.erase(remove(a.begin(), a.end(), key[i]), a.end());
     }
     a.erase(0, i+1);
 }

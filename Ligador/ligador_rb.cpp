@@ -64,10 +64,30 @@ int main (int argc, char **argv) {
     for (int i=f_correcao_b; i<cod_obj_ligado.size(); i++) {
         int op = Functions::retur_op_inst_cod(tab_inst, cod_obj_ligado[i]);
         if (op > -1) {
-            i += op;
-            auto it = tab_uso_global.find(to_string(i));
-            if (it == tab_uso_global.end()) {
-                cod_obj_ligado[i] += f_correcao_b;
+            cout << "op: " << op << endl;
+            if(op == 2) {
+                if(i < cod_obj_ligado.size()-1) {
+                    i += 1;
+                    auto it = tab_uso_global.find(to_string(i));
+                    if (it == tab_uso_global.end()) {
+                        cod_obj_ligado[i] += f_correcao_b;
+                    }
+                }
+                if(i < cod_obj_ligado.size()-2) {
+                    i += 1;
+                    auto it = tab_uso_global.find(to_string(i));
+                    if (it == tab_uso_global.end()) {
+                        cod_obj_ligado[i] += f_correcao_b;
+                    }   
+                }
+            } else {
+                if(i < cod_obj_ligado.size()-1) {
+                    i += op;
+                    auto it = tab_uso_global.find(to_string(i));
+                    if (it == tab_uso_global.end()) {
+                        cod_obj_ligado[i] += f_correcao_b;
+                    }
+                }
             }
 
         }
