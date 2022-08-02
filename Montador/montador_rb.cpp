@@ -23,11 +23,9 @@ int main (int argc, char **argv) {
     string lexema, file_string;
     string name_file;
 
-    // char* mont_mod = argv[1];
     char* arq_in = argv[2];
     char* arq_out = argv[3];
     char c, b_space;
-    Enunciado enunc;
 
     string forma_linha[2] = {"nil", "nil"};
     // nil -> Não Checado
@@ -37,12 +35,10 @@ int main (int argc, char **argv) {
     map<string, Instrucao> tab_inst;    // Map tabela de instruções
     map<string,Diretiva> tab_diret;   // Map tabela de diretivas
     map<string, Simbolo> tab_simbol;  // Map tabela de simbolos
-
     map<string, DiretivaExtend> tab_extend;  // Map tabela extendida de diretivas
 
     int flag_erros = 0;
     bool flag_ligador = false;
-    
 
     map<string, Definicao> tab_def;  // Map tabela de definicao
     map<string, Uso> tab_uso;  // Map tabela de uso
@@ -55,16 +51,12 @@ int main (int argc, char **argv) {
    
     name_file = Functions::GetNameFile(string(arq_in), 0);
     
-    
     file_string =  Functions::up_file(arq_in);
-    // cout << file_string << endl;
 
     if(!file_string.empty() && NUM_PASS > 0) {
         for (int passagem = 0; passagem < NUM_PASS; passagem++) {
-            // cout << "p: " << passagem <<endl;
             if (passagem == 0) {
                 cout << "PASSAGEM 0 ===================================================================\n" << endl;
-                
                 char b;
                 string diret;
                 string pre_file_string;
@@ -79,7 +71,6 @@ int main (int argc, char **argv) {
                     else if (file_string[i] == '\n') {
                         ign_coment = 0;
                     }
-
                     if (ign_coment == 0) {
                         if (file_string[i] == '\n' || file_string[i] == '\t') {
                             //cout << "diret: " << diret << endl;
@@ -93,21 +84,13 @@ int main (int argc, char **argv) {
                         }
                     }
                 }
-                // for(auto i = map_diret.begin(); i != map_diret.end(); i++) {
-                //     cout << i->first << " ";
-                //     cout << i->second << endl;
-                // }
                 map_diret.clear();
-                // cout << endl << pre_file_string;
                 ofstream arq_pre ("files/pre_processado/pre_" + name_file);
                 arq_pre << pre_file_string;
                 arq_pre.close();
             }
             else if (passagem == 1) {
                 cout << "PASSAGEM 1 ===================================================================\n" << endl;
-
-                
-
                 Instrucao inst;
                 Diretiva diret;
                 string rot = "";
@@ -120,7 +103,6 @@ int main (int argc, char **argv) {
                 int flag_data = 0;
                 
                 string msg = "";
-
                 int flag_sec_t = 0;
                 int flag_sec_d = 0;
 
@@ -130,41 +112,18 @@ int main (int argc, char **argv) {
                 ifstream arq_entrada ("files/pre_processado/pre_" + name_file);
                 
                 while(arq_entrada.good()){
-                    // int atual_pos_file = arq_entrada.tellg();
-                    // cout << "main atual pos file: " << atual_pos_file << endl;
-                    // Functions::val_sections(flag_section, arq_entrada, begin_line, msg, passagem_2);
-
-                    // int atual_pos_file = arq_entrada.tellg();
-                    // cout << "main atual pos file: " << atual_pos_file << endl;
-
-                    
-                    
-                    // cout << c;
 
                     arq_entrada.get(c);
                     Functions::Analise_rot_instr(arq_entrada, c, lexema, tab_inst, tab_diret, tab_extend, line_count, forma_linha, linha, begin_line, line_analise, estado, virg, flag_v,
                                                     section_t, section_d, flag_sec_t, flag_sec_d, flag_erros, flag_ligador);
             
-
                     if (c == '\n') {
                         begin_line = arq_entrada.tellg();
                         line_analise = true;
                         
                         if (forma_linha[0] != "nil" && forma_linha[1] != "nil") {
-                            // if (flag_data == 1) {
-                            //     flag_data = 0;
-                            // }
-                            cout << "=================== Linha: ";
-                            for (int i = 0; i < linha.size(); i++) {
-                                cout << linha[i] << " ";
-                            }
-                            cout << endl;
 
                             Functions::passagem1(tab_def, tab_simbol, tab_inst, tab_diret, linha, cont_posicao, line_count, flag_erros, tab_plus);
-
-                            // cout << "Contador de posicao: " << cont_posicao << endl;
-                            
-                            //cout << "\nFim da linha: "<< line_count << " Rotulo[" << forma_linha[0] << "] | Instrução[" << forma_linha[1] << "]" << endl;
 
                             for (int i = 0; i < linha.size(); i++) {
                                 passagem_2 += linha[i] + " ";
@@ -191,17 +150,12 @@ int main (int argc, char **argv) {
                     Functions::print_tab_def(tab_def);
                     cout << endl;
                 }
-                // Functions::print_tab_plus(tab_plus);
-                // cout << endl;
             } 
             else if (passagem == 2) {
                 cout << "PASSAGEM 2 ===================================================================\n" << endl;
                 string cod_obj;
-                // Functions::print_extend(tab_extend);
-                // cout << passagem_2;
                 Functions::passagem2(cod_obj, tab_simbol, tab_inst, tab_diret, passagem_2, cont_posicao, line_count, tab_extend, tab_uso, tab_plus, flag_erros);
-                
-                
+
                 if (flag_erros == 0) {
                     if (flag_ligador) {
                         cout << "Tabela de Uso : " << endl;
@@ -236,9 +190,7 @@ int main (int argc, char **argv) {
                     cout << "O Codigo Objeto Não Foi Gerado. Corrija os Erros e Tente Novamente!" << endl;
                     cout << "FORAM ENCONTRADOS [" << flag_erros << "] ERROS ESPECIFICADOS ACIMA." << endl << endl;
                 }
-                
             }
-            
         }
     } else {
         Functions::print_errors("", 11, -1);

@@ -1,3 +1,12 @@
+// Trabalho Prático 1
+// Software Básico
+// Prof. Bruno Macchiavello
+// 1o Semestre de 2022
+
+// Lucas Junior Ribas - Matrícula - 160052289
+
+// LIGADOR
+
 #include "./headers/Functions.h"
 
 int main (int argc, char **argv) {
@@ -101,6 +110,6 @@ int main (int argc, char **argv) {
     for (int i=0; i<cod_obj_ligado.size(); i++) {
         arq_lig << cod_obj_ligado[i] << " ";
     }
-    
+
     return 0;
 }
